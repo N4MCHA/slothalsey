@@ -4,51 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>HALSEYSLOT - Web Slot Simulation</title>
-  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-  <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)" />
+
+  <!-- Tailwind CSS Primary & Secondary CDNs -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
   <style>
-    @import url('[https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap)');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: #0b0e14;
       color: #e2e8f0;
       user-select: none;
       -webkit-user-select: none;
+      min-height: 100vh;
     }
-    .reel-container {
-      perspective: 1000px;
-    }
-    .reel-strip {
-      transition: transform 0.1s ease-out;
-    }
-    .blur-spin {
-      filter: blur(4px);
-    }
-    /* Hide spin arrows in Firefox */
+
+    /* Fallback layout jika CDN terlambat load */
+    .reel-container { perspective: 1000px; }
+    .reel-strip { transition: transform 0.1s ease-out; }
+    .blur-spin { filter: blur(4px); }
+
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none; 
       margin: 0; 
     }
-    input[type=number] {
-      -moz-appearance: textfield;
-    }
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 4px;
-    }
+    input[type=number] { -moz-appearance: textfield; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between pb-20 md:pb-0">
+<body class="min-h-screen flex flex-col justify-between pb-20 md:pb-0 bg-slate-950 text-slate-100">
 
   <!-- NAVBAR -->
-  <nav class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
+  <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-4 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
       <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home')">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
@@ -64,7 +64,7 @@
 
       <!-- User Status Header -->
       <div id="nav-user-info" class="flex items-center gap-3">
-        <!-- Dynamic Content (Login Button / Balance) -->
+        <!-- Dynamic User Status -->
       </div>
     </div>
   </nav>
@@ -93,7 +93,7 @@
       </div>
 
       <!-- Live RTP Indicator Banner -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
             <i class="fa-solid fa-chart-line text-lg"></i>
@@ -127,27 +127,21 @@
         </div>
       </div>
 
-      <!-- SLOT MACHINE CANVAS / CONTAINER -->
-      <div class="max-w-2xl mx-auto bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl border-2 border-amber-500/40 p-4 sm:p-6 shadow-2xl relative overflow-hidden">
-        <!-- Reel Viewport (3x3 Grid) -->
+      <!-- SLOT MACHINE CONTAINER -->
+      <div class="max-w-2xl mx-auto bg-slate-900 rounded-3xl border-2 border-amber-500/40 p-4 sm:p-6 shadow-2xl relative overflow-hidden">
+        <!-- Reel Viewport -->
         <div class="bg-slate-950 border-4 border-amber-500/30 rounded-2xl p-3 grid grid-cols-3 gap-2 relative shadow-inner">
-          
-          <!-- Reel Column 1 -->
-          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
+          <div class="bg-slate-900 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
             <div id="reel-1" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
               <div>⚡</div><div>👑</div><div>💎</div>
             </div>
           </div>
-
-          <!-- Reel Column 2 -->
-          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
+          <div class="bg-slate-900 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
             <div id="reel-2" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
               <div>⚡</div><div>👑</div><div>💎</div>
             </div>
           </div>
-
-          <!-- Reel Column 3 -->
-          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
+          <div class="bg-slate-900 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
             <div id="reel-3" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
               <div>⚡</div><div>👑</div><div>💎</div>
             </div>
@@ -161,7 +155,6 @@
 
         <!-- Control Deck -->
         <div class="mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-4">
-          <!-- Input Nominal Taruhan Manual & Preset -->
           <div class="space-y-2">
             <div class="flex justify-between items-center text-xs">
               <span class="font-bold text-slate-400 uppercase">JUMLAH TARUHAN (Ketik Manual):</span>
@@ -174,14 +167,12 @@
                 <input type="number" id="bet-input" onchange="validateBetInput()" oninput="validateBetInput()" value="1000" min="200" step="100" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-3 py-2 text-amber-400 font-black text-sm focus:outline-none focus:border-amber-500" />
               </div>
 
-              <!-- Shortcut Presets -->
               <button onclick="setPresetBet('min')" class="px-2.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold rounded-xl">MIN</button>
               <button onclick="setPresetBet('half')" class="px-2.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold rounded-xl">1/2</button>
               <button onclick="setPresetBet('double')" class="px-2.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold rounded-xl">2X</button>
               <button onclick="setPresetBet('max')" class="px-2.5 py-2 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 text-xs font-bold rounded-xl">MAX</button>
             </div>
 
-            <!-- Quick Add Delta Buttons -->
             <div class="flex gap-2">
               <button onclick="addBetDelta(500)" class="flex-1 py-1 bg-slate-900/60 hover:bg-slate-900 text-slate-400 border border-slate-800 text-[11px] font-semibold rounded-lg">+500</button>
               <button onclick="addBetDelta(1000)" class="flex-1 py-1 bg-slate-900/60 hover:bg-slate-900 text-slate-400 border border-slate-800 text-[11px] font-semibold rounded-lg">+1,000</button>
@@ -191,12 +182,10 @@
           </div>
 
           <div class="flex items-center gap-3 pt-2">
-            <!-- Auto Spin Toggle Button -->
             <button id="btn-autospin" onclick="toggleAutoSpin()" class="px-4 py-3.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-2xl text-xs font-bold flex items-center gap-2 transition">
               <i class="fa-solid fa-rotate"></i> AUTO: <span id="autospin-state" class="text-red-400 font-black">OFF</span>
             </button>
 
-            <!-- Main Spin Button -->
             <button id="btn-spin" onclick="executeSpin()" class="flex-grow py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-base rounded-2xl shadow-lg shadow-amber-500/20 active:scale-[0.98] transition uppercase tracking-wider flex items-center justify-center gap-2">
               <i class="fa-solid fa-play"></i> PUTAR SEKARANG
             </button>
@@ -204,18 +193,16 @@
         </div>
       </div>
 
-      <!-- Paytable & Spin History Grid -->
+      <!-- Paytable & History -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
           <h4 class="font-bold text-amber-400 text-xs mb-3 flex items-center gap-2 uppercase tracking-wider">
             <i class="fa-solid fa-table-list"></i> Kelipatan Hadiah (Paytable)
           </h4>
-          <div id="paytable-list" class="grid grid-cols-2 gap-2 text-xs">
-            <!-- Generated by JS -->
-          </div>
+          <div id="paytable-list" class="grid grid-cols-2 gap-2 text-xs"></div>
         </div>
 
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
           <h4 class="font-bold text-amber-400 text-xs mb-3 flex items-center gap-2 uppercase tracking-wider">
             <i class="fa-solid fa-clock-rotate-left"></i> Riwayat Putaran Sesi Ini
           </h4>
@@ -228,7 +215,7 @@
 
     <!-- TAB: PROFILE & OWNER DASHBOARD -->
     <section id="tab-profile" class="hidden space-y-6">
-      <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
         <div class="flex flex-col md:flex-row items-center gap-6">
           <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-3xl font-black text-white shadow-lg shadow-purple-500/30">
             <span id="profile-avatar-initial">U</span>
@@ -242,7 +229,6 @@
               </span>
             </div>
 
-            <!-- EXP Level Progress Bar -->
             <div class="max-w-md space-y-1">
               <div class="flex justify-between text-xs font-semibold">
                 <span id="profile-level-text" class="text-amber-400">Level 1</span>
@@ -269,8 +255,8 @@
         </div>
       </div>
 
-      <!-- OWNER DASHBOARD (VISIBLE TO OWNER/ADMIN) -->
-      <div id="owner-dashboard" class="hidden bg-slate-900/90 border-2 border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-6">
+      <!-- OWNER DASHBOARD -->
+      <div id="owner-dashboard" class="hidden bg-slate-900 border-2 border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
           <div>
             <h3 class="text-xl font-black text-purple-400 flex items-center gap-2">
@@ -283,7 +269,6 @@
           </span>
         </div>
 
-        <!-- SETTING WIN RATE / RTP GLOBAL -->
         <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-3">
           <div class="flex justify-between items-center">
             <h4 class="font-bold text-amber-400 text-sm flex items-center gap-2">
@@ -301,7 +286,6 @@
           </div>
         </div>
 
-        <!-- MEMBER MANAGEMENT TABLE -->
         <div class="space-y-3">
           <h4 class="font-bold text-slate-200 text-sm flex items-center gap-2">
             <i class="fa-solid fa-users"></i> Daftar Member & Edit Saldo
@@ -316,9 +300,7 @@
                   <th class="p-3">Aksi Owner</th>
                 </tr>
               </thead>
-              <tbody id="owner-member-table-body" class="divide-y divide-slate-800/60">
-                <!-- Populated dynamically -->
-              </tbody>
+              <tbody id="owner-member-table-body" class="divide-y divide-slate-800/60"></tbody>
             </table>
           </div>
         </div>
@@ -328,8 +310,8 @@
   </main>
 
   <!-- BOTTOM MOBILE NAVIGATION BAR -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 z-40 px-6 py-2 flex justify-around items-center">
-    <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 text-xs font-semibold text-amber-400 hover:text-amber-300">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 z-40 px-6 py-2 flex justify-around items-center">
+    <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 text-xs font-semibold text-amber-400">
       <i class="fa-solid fa-house text-lg"></i> Home
     </button>
     <button onclick="switchTab('game')" class="flex flex-col items-center gap-1 text-xs font-semibold text-slate-400 hover:text-amber-400">
@@ -340,8 +322,8 @@
     </button>
   </nav>
 
-  <!-- MODAL AUTH (LOGIN / REGISTER) -->
-  <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <!-- MODAL AUTH -->
+  <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl relative">
       <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white">
         <i class="fa-solid fa-xmark text-xl"></i>
@@ -349,7 +331,7 @@
 
       <div class="text-center space-y-1">
         <h3 class="text-2xl font-black text-white">Akses Akun HalseySlot</h3>
-        <p class="text-xs text-slate-400">Login atau daftar akun untuk mulai bermain dan menyimpan saldo virtualmu!</p>
+        <p class="text-xs text-slate-400">Login atau daftar akun untuk menyimpan saldo virtualmu!</p>
       </div>
 
       <div class="space-y-3">
@@ -364,26 +346,20 @@
       </div>
 
       <div class="flex gap-3">
-        <button onclick="handleLogin()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-sm transition">
-          LOGIN
-        </button>
-        <button onclick="handleRegister()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-sm border border-slate-700 transition">
-          DAFTAR
-        </button>
+        <button onclick="handleLogin()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-sm transition">LOGIN</button>
+        <button onclick="handleRegister()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-sm border border-slate-700 transition">DAFTAR</button>
       </div>
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- JAVASCRIPT ENGINE -->
   <script>
-    // --- STATE VARIABLES ---
     let currentUser = null;
     let globalWinRate = parseFloat(localStorage.getItem('arcade_winrate')) || 80.8;
     let isAutoSpin = false;
     let autoSpinInterval = null;
     let activeGame = null;
 
-    // --- 20 LIST GAME SLOT ---
     const GAMES_DATA = [
       { id: 1, title: 'Olympus Zeus', icon: '⚡', symbols: ['⚡','👑','💎','🔱','🏛️','🛡️'] },
       { id: 2, title: 'Sweet Bonanza', icon: '🍬', symbols: ['🍬','🍭','🍇','🍉','🍎','🍌'] },
@@ -407,7 +383,6 @@
       { id: 20, title: 'Retro Arcade', icon: '👾', symbols: ['👾','🕹️','🎮','👾','⭐','🚀'] }
     ];
 
-    // INITIAL SETUP
     window.addEventListener('DOMContentLoaded', () => {
       activeGame = GAMES_DATA[0];
       renderGameGrid(GAMES_DATA);
@@ -416,9 +391,7 @@
       updateRtpDisplays();
     });
 
-    // --- TAB SWITCHING & AUTO-STOP AUTOSPIN ---
     function switchTab(tab) {
-      // PERINTAH UTAMA: Jika pindah tab, atur AutoSpin menjadi OFF secara otomatis!
       stopAutoSpin();
 
       document.getElementById('tab-home').classList.add('hidden');
@@ -427,27 +400,20 @@
 
       if (tab === 'home') document.getElementById('tab-home').classList.remove('hidden');
       if (tab === 'game') {
-        if (!currentUser) {
-          openAuthModal();
-          return;
-        }
+        if (!currentUser) return openAuthModal();
         document.getElementById('tab-game').classList.remove('hidden');
       }
       if (tab === 'profile') {
-        if (!currentUser) {
-          openAuthModal();
-          return;
-        }
+        if (!currentUser) return openAuthModal();
         document.getElementById('tab-profile').classList.remove('hidden');
         renderProfileTab();
       }
     }
 
-    // --- RENDER GAME GRID ---
     function renderGameGrid(games) {
       const grid = document.getElementById('game-grid');
       grid.innerHTML = games.map(g => `
-        <div onclick="openGame(${g.id})" class="bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer group transition duration-300 transform hover:-translate-y-1">
+        <div onclick="openGame(${g.id})" class="bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer group transition duration-300">
           <div class="w-16 h-16 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-4xl group-hover:scale-110 transition">
             ${g.icon}
           </div>
@@ -465,24 +431,15 @@
       renderGameGrid(filtered);
     }
 
-    // --- OPEN GAME CHECK LOGIN ---
     function openGame(gameId) {
-      if (!currentUser) {
-        openAuthModal();
-        return;
-      }
+      if (!currentUser) return openAuthModal();
       activeGame = GAMES_DATA.find(g => g.id === gameId);
       document.getElementById('current-game-title').innerText = activeGame.title;
       switchTab('game');
     }
 
-    // --- AUTHENTICATION ENGINE ---
-    function openAuthModal() {
-      document.getElementById('modal-auth').classList.remove('hidden');
-    }
-    function closeAuthModal() {
-      document.getElementById('modal-auth').classList.add('hidden');
-    }
+    function openAuthModal() { document.getElementById('modal-auth').classList.remove('hidden'); }
+    function closeAuthModal() { document.getElementById('modal-auth').classList.add('hidden'); }
 
     function handleLogin() {
       const userVal = document.getElementById('auth-username').value.trim();
@@ -527,7 +484,7 @@
       saveSession();
       closeAuthModal();
       updateNavUser();
-      alert('Pendaftaran Berhasil! Bonus Virtual Saldo Rp 50.000 telah ditambahkan.');
+      alert('Pendaftaran Berhasil! Saldo Bonus Rp 50.000 ditambahkan.');
     }
 
     function handleLogout() {
@@ -562,7 +519,7 @@
       const container = document.getElementById('nav-user-info');
       if (currentUser) {
         container.innerHTML = `
-          <div onclick="switchTab('profile')" class="cursor-pointer flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700/80">
+          <div onclick="switchTab('profile')" class="cursor-pointer flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
             <i class="fa-solid fa-coins text-amber-400 text-xs"></i>
             <span class="text-xs font-black text-amber-300">Rp ${currentUser.balance.toLocaleString()}</span>
             <span class="text-xs text-slate-400">| ${currentUser.username}</span>
@@ -577,7 +534,6 @@
       }
     }
 
-    // --- OWNER WIN RATE CONTROL ---
     function updateWinRateSetting(val) {
       globalWinRate = parseFloat(val);
       localStorage.setItem('arcade_winrate', globalWinRate);
@@ -592,7 +548,6 @@
       renderGameGrid(GAMES_DATA);
     }
 
-    // --- PROFILE & OWNER TAB RENDER ---
     function renderProfileTab() {
       if (!currentUser) return;
       document.getElementById('profile-username').innerText = currentUser.username;
@@ -637,7 +592,7 @@
     }
 
     function ownerAddBalance(targetUser) {
-      const amount = prompt(`Masukkan penambahan/perubahan saldo virtual untuk ${targetUser}:`, "50000");
+      const amount = prompt(`Edit/Tambah saldo untuk ${targetUser}:`, "50000");
       if (!amount || isNaN(amount)) return;
 
       let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
@@ -651,7 +606,7 @@
         }
         renderOwnerMemberTable();
         updateNavUser();
-        alert('Saldo berhasil diperbarui oleh Owner!');
+        alert('Saldo berhasil diperbarui!');
       }
     }
 
@@ -661,14 +616,10 @@
       saveSession();
       renderProfileTab();
       updateNavUser();
-      alert('Berhasil refill Rp 25.000 saldo virtual gratis!');
+      alert('Berhasil refill Rp 25.000!');
     }
 
-    // --- BET INPUT MANAGEMENT ---
-    function getBetValue() {
-      const val = parseInt(document.getElementById('bet-input').value) || 0;
-      return val;
-    }
+    function getBetValue() { return parseInt(document.getElementById('bet-input').value) || 0; }
 
     function validateBetInput() {
       let val = getBetValue();
@@ -684,7 +635,6 @@
       if (type === 'half') val = Math.max(200, Math.floor(currentUser.balance / 2));
       if (type === 'double') val = Math.min(currentUser.balance, getBetValue() * 2);
       if (type === 'max') val = Math.max(200, currentUser.balance);
-
       document.getElementById('bet-input').value = val;
     }
 
@@ -709,39 +659,32 @@
       `).join('');
     }
 
-    // --- GAMEPLAY ENGINE WITH OWNER WIN-RATE ALGORITHM ---
     function executeSpin() {
-      if (!currentUser) {
-        openAuthModal();
-        stopAutoSpin();
-        return;
-      }
+      if (!currentUser) return openAuthModal();
 
       validateBetInput();
       const currentBet = getBetValue();
 
       if (currentBet < 200) {
-        alert('Minimal taruhan adalah Rp 200!');
+        alert('Minimal taruhan Rp 200!');
         stopAutoSpin();
         return;
       }
 
       if (currentUser.balance < currentBet) {
-        alert('Saldo virtual kamu kurang untuk memasang taruhan ini! Silakan refill di Profile.');
+        alert('Saldo virtual kamu tidak cukup!');
         stopAutoSpin();
         return;
       }
 
-      // Potong Saldo
       currentUser.balance -= currentBet;
       saveSession();
       updateNavUser();
 
       const btnSpin = document.getElementById('btn-spin');
       btnSpin.disabled = true;
-      document.getElementById('slot-status').innerText = 'Memutar gulungan...';
+      document.getElementById('slot-status').innerText = 'Memutar...';
 
-      // Hit rate berdasarkan Win Rate RTP dari Owner Control Panel
       const randVal = Math.random() * 100;
       const isJackpotAttempt = randVal < globalWinRate;
 
@@ -757,7 +700,6 @@
         res3 = syms[Math.floor(Math.random() * syms.length)];
       }
 
-      // Animasi Spin
       const r1 = document.getElementById('reel-1');
       const r2 = document.getElementById('reel-2');
       const r3 = document.getElementById('reel-3');
@@ -799,25 +741,21 @@
         statusText = `❌ Rungkad/Belum Beruntung, coba lagi!`;
       }
 
-      if (winAmount > 0) {
-        currentUser.balance += winAmount;
-      }
+      if (winAmount > 0) currentUser.balance += winAmount;
 
-      // EXP & LEVEL UP SYSTEM
       currentUser.exp += 15;
       const expNeeded = currentUser.level * 100;
       if (currentUser.exp >= expNeeded) {
         currentUser.level += 1;
         currentUser.exp = 0;
         currentUser.balance += 10000;
-        alert(`🌟 LEVEL UP! Naik ke Level ${currentUser.level}! Bonus Saldo +Rp 10.000`);
+        alert(`🌟 LEVEL UP! Level ${currentUser.level}! Bonus Saldo +Rp 10.000`);
       }
 
       saveSession();
       updateNavUser();
       document.getElementById('slot-status').innerText = statusText;
 
-      // History
       const hist = document.getElementById('spin-history');
       const emptyMsg = hist.querySelector('p');
       if (emptyMsg) emptyMsg.remove();
@@ -833,26 +771,22 @@
       hist.prepend(item);
     }
 
-    // --- AUTOSPIN MANAGEMENT ---
     function toggleAutoSpin() {
-      if (isAutoSpin) {
-        stopAutoSpin();
-      } else {
-        startAutoSpin();
-      }
+      if (isAutoSpin) stopAutoSpin();
+      else startAutoSpin();
     }
 
     function startAutoSpin() {
       if (!currentUser) return openAuthModal();
       isAutoSpin = true;
       const stateEl = document.getElementById('autospin-state');
-      stateEl.innerText = 'ON';
-      stateEl.className = 'text-emerald-400 font-black';
+      if (stateEl) {
+        stateEl.innerText = 'ON';
+        stateEl.className = 'text-emerald-400 font-black';
+      }
 
       autoSpinInterval = setInterval(() => {
-        if (!document.getElementById('btn-spin').disabled) {
-          executeSpin();
-        }
+        if (!document.getElementById('btn-spin').disabled) executeSpin();
       }, 1500);
     }
 

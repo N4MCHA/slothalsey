@@ -116,9 +116,7 @@
       </div>
 
       <!-- User Status & Tombol Profil Header -->
-      <div id="nav-user-info" class="flex items-center gap-2 min-w-0">
-        <!-- Dynamic User Status -->
-      </div>
+      <div id="nav-user-info" class="flex items-center gap-2 min-w-0"></div>
     </div>
   </nav>
 
@@ -371,7 +369,7 @@
 
   </main>
 
-  <!-- BOTTOM NAVIGATION BAR (NAVBAR BAWAH UNTUK HP) -->
+  <!-- BOTTOM NAVIGATION BAR -->
   <div class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 border-t border-slate-800 backdrop-blur-md px-4 py-2.5 flex justify-around items-center shadow-2xl">
     <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-1 text-amber-400 transition">
       <i class="fa-solid fa-house text-lg"></i>
@@ -427,7 +425,6 @@
     let currentLeaderboardTab = 'level';
     let notifTimeout = null;
 
-    // FLOATING NOTIFICATION BAR SYSTEM (CENTERED)
     function showNotification(title, message, type = 'info') {
       const bar = document.getElementById('floating-notif-bar');
       const titleEl = document.getElementById('notif-title');
@@ -593,8 +590,14 @@
     }
 
     function renderLeaderboard() {
-      const db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
       let usersArr = Object.values(db);
+
+      if (currentUser && !db[currentUser.username]) {
+        db[currentUser.username] = currentUser;
+        localStorage.setItem('arcade_users', JSON.stringify(db));
+        usersArr = Object.values(db);
+      }
 
       if (currentLeaderboardTab === 'level') {
         usersArr.sort((a, b) => b.level - a.level || b.exp - a.exp);
@@ -710,6 +713,7 @@
       saveSession();
       closeAuthModal();
       updateNavUser();
+      renderLeaderboard();
       showNotification('Pendaftaran Berhasil!', 'Bonus Saldo Virtual Rp 50.000 ditambahkan!', 'success');
     }
 
@@ -735,6 +739,11 @@
       const sess = localStorage.getItem('arcade_session');
       if (sess) {
         currentUser = JSON.parse(sess);
+        let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+        if (currentUser && !db[currentUser.username]) {
+          db[currentUser.username] = currentUser;
+          localStorage.setItem('arcade_users', JSON.stringify(db));
+        }
         updateNavUser();
       } else {
         updateNavUser();
@@ -776,6 +785,12 @@
 
     function renderProfileTab() {
       if (!currentUser) return;
+      
+      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      if (db[currentUser.username]) {
+        currentUser = db[currentUser.username];
+      }
+
       document.getElementById('profile-username').innerText = currentUser.username;
       document.getElementById('profile-avatar-initial').innerText = currentUser.username[0].toUpperCase();
       document.getElementById('profile-role-badge').innerText = currentUser.role;
@@ -839,17 +854,26 @@
         }
         renderOwnerMemberTable();
         updateNavUser();
+        renderLeaderboard();
         showNotification('Owner Action', `Berhasil update saldo ${targetUser}!`, 'success');
       }
     }
 
     function refillVirtualBalance() {
       if (!currentUser) return;
+      
+      // REFILL HANYA UNTUK OWNER, MEMBER DIBERI PESAN LEDEKAN
+      if (currentUser.role !== 'Owner') {
+        showNotification('Gagal Refill!', 'Beli dong 😝', 'jackpot');
+        return;
+      }
+
       currentUser.balance += 25000;
       saveSession();
       renderProfileTab();
       updateNavUser();
-      showNotification('Refill Berhasil', 'Saldo virtual bertambah +Rp 25.000!', 'success');
+      renderLeaderboard();
+      showNotification('Refill Berhasil', 'Saldo virtual Owner bertambah +Rp 25.000!', 'success');
     }
 
     function getBetValue() { 
@@ -896,9 +920,14 @@
       `).join('');
     }
 
-    // SLOTS SPIN ANIMATION & REAL RTP MATH ENGINE
+    // SLOTS SPIN ANIMATION & REALISTIC RTP MATH ENGINE
     function executeSpin() {
       if (!currentUser) return openAuthModal();
+
+      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      if (db[currentUser.username]) {
+        currentUser.balance = db[currentUser.username].balance;
+      }
 
       const currentBet = validateBetOnSpin();
 
@@ -926,7 +955,7 @@
 
       const randVal = Math.random() * 100;
       const isJackpotAttempt = randVal < globalWinRate;
-      const isMiniWinAttempt = randVal < (globalWinRate + (100 - globalWinRate) * 0.4);
+      const isMiniWinAttempt = randVal < (globalWinRate + (100 - globalWinRate) * 0.3);
 
       const syms = activeGame ? activeGame.symbols : ['⚡','👑','💎','🔱'];
       let res1, res2, res3;
@@ -1020,6 +1049,7 @@
 
       saveSession();
       updateNavUser();
+      renderLeaderboard();
       document.getElementById('slot-status').innerText = statusText;
 
       const hist = document.getElementById('spin-history');

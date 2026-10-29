@@ -28,10 +28,38 @@
       min-height: 100vh;
     }
 
-    /* Fallback layout jika CDN terlambat load */
-    .reel-container { perspective: 1000px; }
-    .reel-strip { transition: transform 0.1s ease-out; }
-    .blur-spin { filter: blur(4px); }
+    /* Animasi Slot Realistis */
+    .reel-window {
+      height: 240px;
+      overflow: hidden;
+      position: relative;
+    }
+    .reel-strip-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.1s ease-out;
+    }
+    .spinning-reel {
+      animation: slotSpin 0.12s linear infinite;
+      filter: blur(2px);
+    }
+    .reel-stop-bounce {
+      animation: stopBounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes slotSpin {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    @keyframes stopBounce {
+      0% { transform: translateY(-20px); }
+      70% { transform: translateY(8px); }
+      100% { transform: translateY(0); }
+    }
 
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
@@ -45,7 +73,7 @@
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between pb-20 md:pb-0 bg-slate-950 text-slate-100">
+<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 pb-6">
 
   <!-- NAVBAR -->
   <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-4 py-3 shadow-lg">
@@ -100,7 +128,7 @@
           </div>
           <div>
             <h4 class="font-bold text-sm text-slate-200">Global System Live RTP Rate</h4>
-            <p class="text-xs text-emerald-400 font-semibold"><span id="home-live-rtp-val">80.8%</span> LIVE <span class="text-slate-500">• Terhubung Kontrol Owner</span></p>
+            <p class="text-xs text-emerald-400 font-semibold"><span id="home-live-rtp-val">80%</span> LIVE <span class="text-slate-500">• Terhubung Kontrol Owner</span></p>
           </div>
         </div>
         <div class="relative w-full sm:w-64">
@@ -123,7 +151,7 @@
         </button>
         <div class="text-right">
           <h3 id="current-game-title" class="text-base font-black text-amber-400">Olympus Zeus</h3>
-          <p class="text-xs text-slate-400">RTP Live: <span id="game-rtp-display" class="text-emerald-400 font-bold">80.8%</span></p>
+          <p class="text-xs text-slate-400">RTP Live: <span id="game-rtp-display" class="text-emerald-400 font-bold">80%</span></p>
         </div>
       </div>
 
@@ -131,18 +159,18 @@
       <div class="max-w-2xl mx-auto bg-slate-900 rounded-3xl border-2 border-amber-500/40 p-4 sm:p-6 shadow-2xl relative overflow-hidden">
         <!-- Reel Viewport -->
         <div class="bg-slate-950 border-4 border-amber-500/30 rounded-2xl p-3 grid grid-cols-3 gap-2 relative shadow-inner">
-          <div class="bg-slate-900 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
-            <div id="reel-1" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
+          <div class="bg-slate-900 rounded-xl overflow-hidden reel-window border border-slate-800 flex items-center justify-center">
+            <div id="reel-1" class="reel-strip-box text-5xl sm:text-6xl py-2">
               <div>⚡</div><div>👑</div><div>💎</div>
             </div>
           </div>
-          <div class="bg-slate-900 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
-            <div id="reel-2" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
+          <div class="bg-slate-900 rounded-xl overflow-hidden reel-window border border-slate-800 flex items-center justify-center">
+            <div id="reel-2" class="reel-strip-box text-5xl sm:text-6xl py-2">
               <div>⚡</div><div>👑</div><div>💎</div>
             </div>
           </div>
-          <div class="bg-slate-900 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
-            <div id="reel-3" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
+          <div class="bg-slate-900 rounded-xl overflow-hidden reel-window border border-slate-800 flex items-center justify-center">
+            <div id="reel-3" class="reel-strip-box text-5xl sm:text-6xl py-2">
               <div>⚡</div><div>👑</div><div>💎</div>
             </div>
           </div>
@@ -164,7 +192,7 @@
             <div class="flex items-center gap-2">
               <div class="relative flex-grow">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-amber-400">Rp</span>
-                <input type="number" id="bet-input" onchange="validateBetInput()" oninput="validateBetInput()" value="1000" min="200" step="100" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-3 py-2 text-amber-400 font-black text-sm focus:outline-none focus:border-amber-500" />
+                <input type="number" id="bet-input" value="1000" placeholder="0" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-3 py-2 text-amber-400 font-black text-sm focus:outline-none focus:border-amber-500" />
               </div>
 
               <button onclick="setPresetBet('min')" class="px-2.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold rounded-xl">MIN</button>
@@ -274,14 +302,15 @@
             <h4 class="font-bold text-amber-400 text-sm flex items-center gap-2">
               <i class="fa-solid fa-sliders"></i> Pengaturan Persentase Kemenangan (RTP Global)
             </h4>
-            <span id="winrate-slider-val" class="text-lg font-black text-emerald-400">80.8%</span>
+            <span id="winrate-slider-val" class="text-lg font-black text-emerald-400">80%</span>
           </div>
           <p class="text-xs text-slate-400">
-            Geser slider di bawah ini untuk merubah frekuensi jackpot member di seluruh game secara langsung.
+            Geser slider halus di bawah ini untuk merubah persentase gacor/rungkad member.
           </p>
           <div class="flex items-center gap-4">
             <span class="text-xs font-bold text-red-400">10% (Sulit)</span>
-            <input type="range" id="winrate-range" min="10" max="95" value="80.8" step="0.1" oninput="updateWinRateSetting(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+            <!-- Slider RTP Dibuat Smooth Step 1 -->
+            <input type="range" id="winrate-range" min="10" max="95" value="80" step="1" oninput="updateWinRateSetting(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
             <span class="text-xs font-bold text-emerald-400">95% (Gacor)</span>
           </div>
         </div>
@@ -308,19 +337,6 @@
     </section>
 
   </main>
-
-  <!-- BOTTOM MOBILE NAVIGATION BAR -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 z-40 px-6 py-2 flex justify-around items-center">
-    <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 text-xs font-semibold text-amber-400">
-      <i class="fa-solid fa-house text-lg"></i> Home
-    </button>
-    <button onclick="switchTab('game')" class="flex flex-col items-center gap-1 text-xs font-semibold text-slate-400 hover:text-amber-400">
-      <i class="fa-solid fa-gamepad text-lg"></i> Spin
-    </button>
-    <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-xs font-semibold text-slate-400 hover:text-amber-400">
-      <i class="fa-solid fa-user text-lg"></i> Profile
-    </button>
-  </nav>
 
   <!-- MODAL AUTH -->
   <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
@@ -355,10 +371,50 @@
   <!-- JAVASCRIPT ENGINE -->
   <script>
     let currentUser = null;
-    let globalWinRate = parseFloat(localStorage.getItem('arcade_winrate')) || 80.8;
+    let globalWinRate = parseInt(localStorage.getItem('arcade_winrate')) || 80;
     let isAutoSpin = false;
     let autoSpinInterval = null;
     let activeGame = null;
+
+    // WEB AUDIO SOUND GENERATOR
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'spin') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+      } else if (type === 'win') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } else if (type === 'jackpot') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+        osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.6);
+      }
+    }
 
     const GAMES_DATA = [
       { id: 1, title: 'Olympus Zeus', icon: '⚡', symbols: ['⚡','👑','💎','🔱','🏛️','🛡️'] },
@@ -419,7 +475,7 @@
           </div>
           <div class="text-center">
             <h4 class="font-bold text-sm text-slate-200 group-hover:text-amber-400">${g.title}</h4>
-            <span class="text-[10px] text-emerald-400 font-semibold">• RTP ${globalWinRate.toFixed(1)}%</span>
+            <span class="text-[10px] text-emerald-400 font-semibold">• RTP ${globalWinRate}%</span>
           </div>
         </div>
       `).join('');
@@ -535,13 +591,13 @@
     }
 
     function updateWinRateSetting(val) {
-      globalWinRate = parseFloat(val);
+      globalWinRate = parseInt(val);
       localStorage.setItem('arcade_winrate', globalWinRate);
       updateRtpDisplays();
     }
 
     function updateRtpDisplays() {
-      const formatted = globalWinRate.toFixed(1) + '%';
+      const formatted = globalWinRate + '%';
       document.getElementById('winrate-slider-val').innerText = formatted;
       document.getElementById('home-live-rtp-val').innerText = formatted;
       document.getElementById('game-rtp-display').innerText = formatted;
@@ -619,13 +675,18 @@
       alert('Berhasil refill Rp 25.000!');
     }
 
-    function getBetValue() { return parseInt(document.getElementById('bet-input').value) || 0; }
+    function getBetValue() { 
+      const raw = document.getElementById('bet-input').value;
+      if (raw === '' || raw === null) return 0;
+      return parseInt(raw) || 0; 
+    }
 
-    function validateBetInput() {
+    function validateBetOnSpin() {
       let val = getBetValue();
       if (val < 200) val = 200;
       if (currentUser && val > currentUser.balance) val = currentUser.balance;
       document.getElementById('bet-input').value = val;
+      return val;
     }
 
     function setPresetBet(type) {
@@ -641,7 +702,6 @@
     function addBetDelta(delta) {
       let current = getBetValue();
       document.getElementById('bet-input').value = current + delta;
-      validateBetInput();
     }
 
     function renderPaytable() {
@@ -659,11 +719,11 @@
       `).join('');
     }
 
+    // SLOTS SPIN ANIMATION ENGINE REALISTIS
     function executeSpin() {
       if (!currentUser) return openAuthModal();
 
-      validateBetInput();
-      const currentBet = getBetValue();
+      const currentBet = validateBetOnSpin();
 
       if (currentBet < 200) {
         alert('Minimal taruhan Rp 200!');
@@ -676,6 +736,8 @@
         stopAutoSpin();
         return;
       }
+
+      playSound('spin');
 
       currentUser.balance -= currentBet;
       saveSession();
@@ -704,27 +766,39 @@
       const r2 = document.getElementById('reel-2');
       const r3 = document.getElementById('reel-3');
 
-      r1.classList.add('blur-spin');
-      r2.classList.add('blur-spin');
-      r3.classList.add('blur-spin');
+      // Mulai Animasi Berputar
+      r1.classList.add('spinning-reel');
+      r2.classList.add('spinning-reel');
+      r3.classList.add('spinning-reel');
 
+      // Reel 1 Berhenti
       setTimeout(() => {
+        r1.classList.remove('spinning-reel');
+        r1.classList.add('reel-stop-bounce');
         r1.innerHTML = `<div>${res1}</div><div>${res1}</div><div>${res1}</div>`;
-        r1.classList.remove('blur-spin');
-      }, 350);
+      }, 500);
 
+      // Reel 2 Berhenti
       setTimeout(() => {
+        r2.classList.remove('spinning-reel');
+        r2.classList.add('reel-stop-bounce');
         r2.innerHTML = `<div>${res2}</div><div>${res2}</div><div>${res2}</div>`;
-        r2.classList.remove('blur-spin');
-      }, 600);
+      }, 900);
 
+      // Reel 3 Berhenti & Hasil Selesai
       setTimeout(() => {
+        r3.classList.remove('spinning-reel');
+        r3.classList.add('reel-stop-bounce');
         r3.innerHTML = `<div>${res3}</div><div>${res3}</div><div>${res3}</div>`;
-        r3.classList.remove('blur-spin');
 
-        finishSpinResult(res1, res2, res3, currentBet);
-        btnSpin.disabled = false;
-      }, 850);
+        setTimeout(() => {
+          r1.classList.remove('reel-stop-bounce');
+          r2.classList.remove('reel-stop-bounce');
+          r3.classList.remove('reel-stop-bounce');
+          finishSpinResult(res1, res2, res3, currentBet);
+          btnSpin.disabled = false;
+        }, 350);
+      }, 1300);
     }
 
     function finishSpinResult(s1, s2, s3, bet) {
@@ -734,9 +808,11 @@
       if (s1 === s2 && s2 === s3) {
         winAmount = bet * 10;
         statusText = `🎉 JACKPOT 3X MATCH! Menang Rp ${winAmount.toLocaleString()}!`;
+        playSound('jackpot');
       } else if (s1 === s2 || s2 === s3 || s1 === s3) {
         winAmount = bet * 2;
         statusText = `✨ MINI WIN 2X MATCH! Menang Rp ${winAmount.toLocaleString()}!`;
+        playSound('win');
       } else {
         statusText = `❌ Rungkad/Belum Beruntung, coba lagi!`;
       }
@@ -787,7 +863,7 @@
 
       autoSpinInterval = setInterval(() => {
         if (!document.getElementById('btn-spin').disabled) executeSpin();
-      }, 1500);
+      }, 1800);
     }
 
     function stopAutoSpin() {

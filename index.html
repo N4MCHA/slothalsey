@@ -28,7 +28,6 @@
       min-height: 100vh;
     }
 
-    /* Animasi Slot Realistis */
     .reel-window {
       height: 240px;
       overflow: hidden;
@@ -61,6 +60,17 @@
       100% { transform: translateY(0); }
     }
 
+    /* Floating Notification Bar Animation */
+    #floating-notif-bar {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(-100px);
+      opacity: 0;
+    }
+    #floating-notif-bar.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none; 
@@ -73,12 +83,27 @@
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 pb-6">
+<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 pb-10 relative overflow-x-hidden">
+
+  <!-- FLOATING NOTIFICATION BAR (BAR NOTIFIKASI ATAS) -->
+  <div id="floating-notif-bar" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md bg-slate-900/95 border-2 border-amber-500/50 backdrop-blur-md rounded-2xl p-4 shadow-2xl flex items-center gap-3">
+    <div id="notif-icon-box" class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg flex-shrink-0">
+      <i class="fa-solid fa-bell"></i>
+    </div>
+    <div class="flex-grow">
+      <h5 id="notif-title" class="font-black text-xs text-amber-400 uppercase tracking-wider">Halseyslot Notification</h5>
+      <p id="notif-message" class="text-xs text-slate-200 mt-0.5 font-medium">Pesan notifikasi sistem...</p>
+    </div>
+    <button onclick="hideNotification()" class="text-slate-400 hover:text-white px-2 py-1 text-xs font-bold">
+      <i class="fa-solid fa-xmark text-sm"></i>
+    </button>
+  </div>
 
   <!-- NAVBAR -->
   <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-4 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home')">
+      <!-- Tombol Home Logo -->
+      <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="switchTab('home')">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
           <i class="fa-solid fa-gem text-slate-950 text-xl"></i>
         </div>
@@ -90,7 +115,7 @@
         </div>
       </div>
 
-      <!-- User Status Header -->
+      <!-- User Status & Tombol Profil Header -->
       <div id="nav-user-info" class="flex items-center gap-3">
         <!-- Dynamic User Status -->
       </div>
@@ -98,11 +123,10 @@
   </nav>
 
   <!-- MAIN CONTENT CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
 
     <!-- TAB: HOME / CATALOG -->
     <section id="tab-home" class="space-y-6">
-      <!-- Banner Hero -->
       <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-900/80 via-slate-900 to-amber-950/60 border border-purple-500/20 p-6 md:p-10 shadow-2xl">
         <div class="relative z-10 max-w-xl space-y-4">
           <span class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-full uppercase tracking-widest">
@@ -117,6 +141,25 @@
         </div>
         <div class="absolute -right-10 -bottom-10 opacity-20 md:opacity-40 pointer-events-none">
           <i class="fa-solid fa-dice-five text-[220px] text-amber-400"></i>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD BAR / SECTION -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <h3 class="font-black text-amber-400 text-base flex items-center gap-2">
+            <i class="fa-solid fa-trophy text-amber-500"></i> Papan Peringkat (Leaderboard)
+          </h3>
+          <!-- Tab Selector Leaderboard -->
+          <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+            <button onclick="switchLeaderboardTab('level')" id="btn-lb-level" class="px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition">🏆 Level Tertinggi</button>
+            <button onclick="switchLeaderboardTab('balance')" id="btn-lb-balance" class="px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">💰 Saldo Tertinggi</button>
+          </div>
+        </div>
+
+        <!-- Leaderboard List Container -->
+        <div id="leaderboard-content" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+          <!-- Populated by JS -->
         </div>
       </div>
 
@@ -138,9 +181,7 @@
       </div>
 
       <!-- Grid Game (20 Games) -->
-      <div id="game-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        <!-- Generated by JS -->
-      </div>
+      <div id="game-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
     </section>
 
     <!-- TAB: GAMEPLAY SLOT -->
@@ -157,7 +198,6 @@
 
       <!-- SLOT MACHINE CONTAINER -->
       <div class="max-w-2xl mx-auto bg-slate-900 rounded-3xl border-2 border-amber-500/40 p-4 sm:p-6 shadow-2xl relative overflow-hidden">
-        <!-- Reel Viewport -->
         <div class="bg-slate-950 border-4 border-amber-500/30 rounded-2xl p-3 grid grid-cols-3 gap-2 relative shadow-inner">
           <div class="bg-slate-900 rounded-xl overflow-hidden reel-window border border-slate-800 flex items-center justify-center">
             <div id="reel-1" class="reel-strip-box text-5xl sm:text-6xl py-2">
@@ -176,12 +216,10 @@
           </div>
         </div>
 
-        <!-- Notification Banner -->
         <div id="slot-status" class="mt-4 text-center py-2 px-4 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 min-h-[40px] flex items-center justify-center">
           Tekan SPIN atau nyalakan Auto Spin untuk bertaruh!
         </div>
 
-        <!-- Control Deck -->
         <div class="mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-4">
           <div class="space-y-2">
             <div class="flex justify-between items-center text-xs">
@@ -260,7 +298,7 @@
             <div class="max-w-md space-y-1">
               <div class="flex justify-between text-xs font-semibold">
                 <span id="profile-level-text" class="text-amber-400">Level 1</span>
-                <span id="profile-exp-text" class="text-slate-400">0 / 100 EXP</span>
+                <span id="profile-exp-text" class="text-slate-400">0 / 250 EXP</span>
               </div>
               <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700/80 p-0.5">
                 <div id="profile-exp-bar" class="bg-gradient-to-r from-amber-500 to-yellow-300 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -309,7 +347,6 @@
           </p>
           <div class="flex items-center gap-4">
             <span class="text-xs font-bold text-red-400">10% (Sulit)</span>
-            <!-- Slider RTP Dibuat Smooth Step 1 -->
             <input type="range" id="winrate-range" min="10" max="95" value="80" step="1" oninput="updateWinRateSetting(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
             <span class="text-xs font-bold text-emerald-400">95% (Gacor)</span>
           </div>
@@ -375,8 +412,43 @@
     let isAutoSpin = false;
     let autoSpinInterval = null;
     let activeGame = null;
+    let currentLeaderboardTab = 'level';
+    let notifTimeout = null;
 
-    // WEB AUDIO SOUND GENERATOR
+    // FLOATING NOTIFICATION BAR SYSTEM
+    function showNotification(title, message, type = 'info') {
+      const bar = document.getElementById('floating-notif-bar');
+      const titleEl = document.getElementById('notif-title');
+      const msgEl = document.getElementById('notif-message');
+      const iconBox = document.getElementById('notif-icon-box');
+
+      titleEl.innerText = title;
+      msgEl.innerText = message;
+
+      if (type === 'success') {
+        iconBox.className = "w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg flex-shrink-0";
+        iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+      } else if (type === 'jackpot') {
+        iconBox.className = "w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg flex-shrink-0";
+        iconBox.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+      } else {
+        iconBox.className = "w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-lg flex-shrink-0";
+        iconBox.innerHTML = '<i class="fa-solid fa-bell"></i>';
+      }
+
+      bar.classList.add('show');
+      if (notifTimeout) clearTimeout(notifTimeout);
+      notifTimeout = setTimeout(() => {
+        hideNotification();
+      }, 3500);
+    }
+
+    function hideNotification() {
+      const bar = document.getElementById('floating-notif-bar');
+      bar.classList.remove('show');
+    }
+
+    // WEB AUDIO SOUND GENERATOR (VOLUME KERAS)
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
@@ -389,30 +461,30 @@
       if (type === 'spin') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.15);
+        osc.stop(audioCtx.currentTime + 0.18);
       } else if (type === 'win') {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
         osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
         osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.35);
+        osc.stop(audioCtx.currentTime + 0.4);
       } else if (type === 'jackpot') {
         osc.type = 'square';
         osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
         osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
         osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
         osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.6);
+        osc.stop(audioCtx.currentTime + 0.7);
       }
     }
 
@@ -445,6 +517,7 @@
       loadSavedSession();
       renderPaytable();
       updateRtpDisplays();
+      renderLeaderboard();
     });
 
     function switchTab(tab) {
@@ -454,7 +527,10 @@
       document.getElementById('tab-game').classList.add('hidden');
       document.getElementById('tab-profile').classList.add('hidden');
 
-      if (tab === 'home') document.getElementById('tab-home').classList.remove('hidden');
+      if (tab === 'home') {
+        document.getElementById('tab-home').classList.remove('hidden');
+        renderLeaderboard();
+      }
       if (tab === 'game') {
         if (!currentUser) return openAuthModal();
         document.getElementById('tab-game').classList.remove('hidden');
@@ -464,6 +540,65 @@
         document.getElementById('tab-profile').classList.remove('hidden');
         renderProfileTab();
       }
+    }
+
+    function switchLeaderboardTab(type) {
+      currentLeaderboardTab = type;
+      const btnLevel = document.getElementById('btn-lb-level');
+      const btnBalance = document.getElementById('btn-lb-balance');
+
+      if (type === 'level') {
+        btnLevel.className = "px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition";
+        btnBalance.className = "px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
+      } else {
+        btnBalance.className = "px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition";
+        btnLevel.className = "px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
+      }
+      renderLeaderboard();
+    }
+
+    function renderLeaderboard() {
+      const db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      let usersArr = Object.values(db);
+
+      if (currentLeaderboardTab === 'level') {
+        usersArr.sort((a, b) => b.level - a.level || b.exp - a.exp);
+      } else {
+        usersArr.sort((a, b) => b.balance - a.balance);
+      }
+
+      const container = document.getElementById('leaderboard-content');
+      if (usersArr.length === 0) {
+        container.innerHTML = `<p class="text-slate-500 italic text-center py-4 text-xs">Belum ada data member di leaderboard.</p>`;
+        return;
+      }
+
+      container.innerHTML = usersArr.slice(0, 5).map((u, index) => {
+        let badgeColor = "text-slate-400";
+        let rankIcon = `#${index + 1}`;
+        if (index === 0) { rankIcon = '👑 1'; badgeColor = 'text-amber-400 font-black'; }
+        else if (index === 1) { rankIcon = '🥈 2'; badgeColor = 'text-slate-200 font-bold'; }
+        else if (index === 2) { rankIcon = '🥉 3'; badgeColor = 'text-amber-600 font-bold'; }
+
+        return `
+          <div class="flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800 text-xs">
+            <div class="flex items-center gap-3">
+              <span class="w-8 text-center text-sm font-black ${badgeColor}">${rankIcon}</span>
+              <div class="w-8 h-8 rounded-xl bg-purple-900/50 border border-purple-500/30 flex items-center justify-center font-bold text-white text-xs">
+                ${u.username[0].toUpperCase()}
+              </div>
+              <div>
+                <p class="font-bold text-slate-200">${u.username} ${u.role === 'Owner' ? '👑' : ''}</p>
+                <p class="text-[10px] text-slate-400">Level ${u.level}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-black text-amber-400">Rp ${u.balance.toLocaleString()}</p>
+              <p class="text-[10px] text-emerald-400 font-semibold">${u.exp} EXP</p>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderGameGrid(games) {
@@ -509,7 +644,7 @@
         saveSession();
         closeAuthModal();
         updateNavUser();
-        alert('Login Berhasil!');
+        showNotification('Login Berhasil!', `Selamat datang kembali, ${currentUser.username}!`, 'success');
       } else {
         alert('Username atau password salah!');
       }
@@ -540,7 +675,7 @@
       saveSession();
       closeAuthModal();
       updateNavUser();
-      alert('Pendaftaran Berhasil! Saldo Bonus Rp 50.000 ditambahkan.');
+      showNotification('Pendaftaran Berhasil!', 'Bonus Saldo Virtual Rp 50.000 ditambahkan!', 'success');
     }
 
     function handleLogout() {
@@ -549,7 +684,7 @@
       localStorage.removeItem('arcade_session');
       updateNavUser();
       switchTab('home');
-      alert('Berhasil Logout.');
+      showNotification('Logout', 'Berhasil keluar dari akun.', 'info');
     }
 
     function saveSession() {
@@ -575,10 +710,10 @@
       const container = document.getElementById('nav-user-info');
       if (currentUser) {
         container.innerHTML = `
-          <div onclick="switchTab('profile')" class="cursor-pointer flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+          <div onclick="switchTab('profile')" class="cursor-pointer flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-700 transition">
             <i class="fa-solid fa-coins text-amber-400 text-xs"></i>
             <span class="text-xs font-black text-amber-300">Rp ${currentUser.balance.toLocaleString()}</span>
-            <span class="text-xs text-slate-400">| ${currentUser.username}</span>
+            <span class="text-xs text-slate-400">| ${currentUser.username} 👤</span>
           </div>
         `;
       } else {
@@ -611,9 +746,16 @@
       document.getElementById('profile-role-badge').innerText = currentUser.role;
       document.getElementById('profile-balance').innerText = 'Rp ' + currentUser.balance.toLocaleString();
 
-      const expNeeded = currentUser.level * 100;
-      const expPct = Math.min(100, Math.floor((currentUser.exp / expNeeded) * 100));
-      document.getElementById('profile-level-text').innerText = 'Level ' + currentUser.level;
+      if (currentUser.level > 100) currentUser.level = 100;
+      const expNeeded = currentUser.level * 250; 
+      if (currentUser.level >= 100) {
+        currentUser.level = 100;
+        currentUser.exp = expNeeded;
+      }
+      
+      const expPct = Math.min(100, Math.max(0, Math.floor((currentUser.exp / expNeeded) * 100)));
+      
+      document.getElementById('profile-level-text').innerText = 'Level ' + currentUser.level + (currentUser.level >= 100 ? ' (MAX)' : '');
       document.getElementById('profile-exp-text').innerText = `${currentUser.exp} / ${expNeeded} EXP`;
       document.getElementById('profile-exp-bar').style.width = expPct + '%';
 
@@ -662,7 +804,7 @@
         }
         renderOwnerMemberTable();
         updateNavUser();
-        alert('Saldo berhasil diperbarui!');
+        showNotification('Owner Action', `Berhasil update saldo ${targetUser}!`, 'success');
       }
     }
 
@@ -672,7 +814,7 @@
       saveSession();
       renderProfileTab();
       updateNavUser();
-      alert('Berhasil refill Rp 25.000!');
+      showNotification('Refill Berhasil', 'Saldo virtual bertambah +Rp 25.000!', 'success');
     }
 
     function getBetValue() { 
@@ -708,8 +850,8 @@
       const items = [
         { name: '3 Simbol Sama (Jackpot)', mult: 'x10 Bet' },
         { name: '2 Simbol Sama (Mini Win)', mult: 'x2 Bet' },
-        { name: 'EXP per Spin', mult: '+15 EXP' },
-        { name: 'Level Up Bonus', mult: '+Rp 10,000' }
+        { name: 'EXP per Spin', mult: '+20 EXP' },
+        { name: 'Level Up Bonus', mult: 'Bertahap (Level × Rp 5.000)' }
       ];
       document.getElementById('paytable-list').innerHTML = items.map(i => `
         <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
@@ -719,7 +861,7 @@
       `).join('');
     }
 
-    // SLOTS SPIN ANIMATION ENGINE REALISTIS
+    // SLOTS SPIN ANIMATION & REAL RTP MATH ENGINE
     function executeSpin() {
       if (!currentUser) return openAuthModal();
 
@@ -749,6 +891,7 @@
 
       const randVal = Math.random() * 100;
       const isJackpotAttempt = randVal < globalWinRate;
+      const isMiniWinAttempt = randVal < (globalWinRate + (100 - globalWinRate) * 0.4);
 
       const syms = activeGame ? activeGame.symbols : ['⚡','👑','💎','🔱'];
       let res1, res2, res3;
@@ -756,36 +899,41 @@
       if (isJackpotAttempt) {
         const chosen = syms[Math.floor(Math.random() * syms.length)];
         res1 = chosen; res2 = chosen; res3 = chosen;
+      } else if (isMiniWinAttempt) {
+        const chosen = syms[Math.floor(Math.random() * syms.length)];
+        let diffSym = syms[Math.floor(Math.random() * syms.length)];
+        while (diffSym === chosen) diffSym = syms[Math.floor(Math.random() * syms.length)];
+        
+        const pattern = Math.floor(Math.random() * 3);
+        if (pattern === 0) { res1 = chosen; res2 = chosen; res3 = diffSym; }
+        else if (pattern === 1) { res1 = diffSym; res2 = chosen; res3 = chosen; }
+        else { res1 = chosen; res2 = diffSym; res3 = chosen; }
       } else {
         res1 = syms[Math.floor(Math.random() * syms.length)];
-        res2 = syms[Math.floor(Math.random() * syms.length)];
-        res3 = syms[Math.floor(Math.random() * syms.length)];
+        do { res2 = syms[Math.floor(Math.random() * syms.length)]; } while (res2 === res1);
+        do { res3 = syms[Math.floor(Math.random() * syms.length)]; } while (res3 === res1 || res3 === res2);
       }
 
       const r1 = document.getElementById('reel-1');
       const r2 = document.getElementById('reel-2');
       const r3 = document.getElementById('reel-3');
 
-      // Mulai Animasi Berputar
       r1.classList.add('spinning-reel');
       r2.classList.add('spinning-reel');
       r3.classList.add('spinning-reel');
 
-      // Reel 1 Berhenti
       setTimeout(() => {
         r1.classList.remove('spinning-reel');
         r1.classList.add('reel-stop-bounce');
         r1.innerHTML = `<div>${res1}</div><div>${res1}</div><div>${res1}</div>`;
       }, 500);
 
-      // Reel 2 Berhenti
       setTimeout(() => {
         r2.classList.remove('spinning-reel');
         r2.classList.add('reel-stop-bounce');
         r2.innerHTML = `<div>${res2}</div><div>${res2}</div><div>${res2}</div>`;
       }, 900);
 
-      // Reel 3 Berhenti & Hasil Selesai
       setTimeout(() => {
         r3.classList.remove('spinning-reel');
         r3.classList.add('reel-stop-bounce');
@@ -809,23 +957,30 @@
         winAmount = bet * 10;
         statusText = `🎉 JACKPOT 3X MATCH! Menang Rp ${winAmount.toLocaleString()}!`;
         playSound('jackpot');
+        showNotification('JACKPOT GACOR!', `Selamat! Anda menang Rp ${winAmount.toLocaleString()}`, 'jackpot');
       } else if (s1 === s2 || s2 === s3 || s1 === s3) {
         winAmount = bet * 2;
         statusText = `✨ MINI WIN 2X MATCH! Menang Rp ${winAmount.toLocaleString()}!`;
         playSound('win');
+        showNotification('MINI WIN!', `Anda mendapatkan Rp ${winAmount.toLocaleString()}`, 'success');
       } else {
         statusText = `❌ Rungkad/Belum Beruntung, coba lagi!`;
       }
 
       if (winAmount > 0) currentUser.balance += winAmount;
 
-      currentUser.exp += 15;
-      const expNeeded = currentUser.level * 100;
-      if (currentUser.exp >= expNeeded) {
-        currentUser.level += 1;
-        currentUser.exp = 0;
-        currentUser.balance += 10000;
-        alert(`🌟 LEVEL UP! Level ${currentUser.level}! Bonus Saldo +Rp 10.000`);
+      if (currentUser.level < 100) {
+        currentUser.exp += 20;
+        const expNeeded = currentUser.level * 250;
+        if (currentUser.exp >= expNeeded) {
+          currentUser.level += 1;
+          currentUser.exp = 0;
+          
+          const levelBonus = currentUser.level * 5000;
+          currentUser.balance += levelBonus;
+          
+          showNotification('LEVEL UP!', `Naik ke Level ${currentUser.level}! Bonus +Rp ${levelBonus.toLocaleString()}`, 'jackpot');
+        }
       }
 
       saveSession();

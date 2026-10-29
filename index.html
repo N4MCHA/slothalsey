@@ -1,39 +1,83 @@
+```html
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ArcadeSlot - Web Slot Simulation</title>
+  <title>HalseySlot - Web Slot Simulation</title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              300: '#fde047',
+              400: '#facc15',
+              500: '#eab308',
+              600: '#ca8a04',
+            }
+          },
+          animation: {
+            'spin-slow': 'spin 3s linear infinite',
+            'bounce-short': 'bounce 0.5s ease-in-out 2',
+            'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          },
+          keyframes: {
+            pulseGlow: {
+              '0%, 100%': { opacity: 1, filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.6))' },
+              '50%': { opacity: 0.7, filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.2))' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Firebase SDKs -->
+
+  <!-- Firebase SDKs (Optional / Ready for Sync) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap');
+    
+    * {
+      touch-action: manipulation;
+    }
     body {
       font-family: 'Poppins', sans-serif;
-      background-color: #0b0e14;
+      background-color: #07090e;
       color: #e2e8f0;
       user-select: none;
       -webkit-user-select: none;
     }
-    .neon-text-gold {
-      text-shadow: 0 0 10px rgba(234, 179, 8, 0.5), 0 0 20px rgba(234, 179, 8, 0.3);
+
+    .neon-border-gold {
+      box-shadow: 0 0 15px rgba(234, 179, 8, 0.3), inset 0 0 10px rgba(234, 179, 8, 0.2);
     }
-    .neon-text-purple {
-      text-shadow: 0 0 10px rgba(168, 85, 247, 0.5), 0 0 20px rgba(168, 85, 247, 0.3);
+
+    .reel-blur {
+      filter: blur(3px);
+      transform: scaleY(1.05);
     }
-    .reel-container {
-      perspective: 1000px;
+
+    /* Hide Number Input Spin Buttons */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
     }
-    .reel-strip {
-      transition: transform 0.1s ease-out;
+    input[type=number] {
+      -moz-appearance: textfield;
     }
-    .blur-spin {
-      filter: blur(4px);
-    }
+
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
@@ -46,164 +90,246 @@
       border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
+      background: #eab308;
+    }
+
+    /* Confetti Particle CSS Animation */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      animation: fall 2.5s linear forwards;
+      z-index: 100;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between pb-16 md:pb-0">
+<body class="min-h-screen flex flex-col justify-between pb-20 md:pb-0 selection:bg-amber-500 selection:text-slate-950">
 
-  <!-- NAVBAR -->
-  <nav class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
+  <!-- ================= NAVBAR TOP ================= -->
+  <nav class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 px-4 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home')">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
+      
+      <!-- LOGO / BRAND -->
+      <div class="flex items-center gap-2.5 cursor-pointer group" onclick="switchTab('home')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition">
           <i class="fa-solid fa-gem text-slate-950 text-xl"></i>
         </div>
-        <span class="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500">
-          ARCADE<span class="text-purple-400">SLOT</span>
-        </span>
+        <div class="flex flex-col">
+          <span class="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 leading-none">
+            HALSEY<span class="text-purple-400">SLOT</span>
+          </span>
+          <span class="text-[9px] text-slate-400 font-semibold tracking-widest uppercase">VIP Engine 2.0</span>
+        </div>
       </div>
 
-      <!-- User Status Header -->
+      <!-- DESKTOP NAV TABS -->
+      <div class="hidden md:flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800">
+        <button onclick="switchTab('home')" id="nav-desk-home" class="px-4 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-amber-500 text-slate-950 shadow">
+          <i class="fa-solid fa-house"></i> Katalog Game
+        </button>
+        <button onclick="switchTab('game')" id="nav-desk-game" class="px-4 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-white">
+          <i class="fa-solid fa-gamepad"></i> Gameplay
+        </button>
+        <button onclick="switchTab('profile')" id="nav-desk-profile" class="px-4 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-white">
+          <i class="fa-solid fa-user"></i> Profil & Owner
+        </button>
+      </div>
+
+      <!-- USER PROFILE HEADER DISPLAY -->
       <div id="nav-user-info" class="flex items-center gap-3">
-        <!-- Will be populated dynamically -->
+        <!-- Rendered Dynamically -->
       </div>
     </div>
   </nav>
 
-  <!-- MAIN CONTENT CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+  <!-- ================= MAIN CONTENT CONTAINER ================= -->
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 py-6 flex-grow w-full">
 
-    <!-- TAB: HOME / CATALOG -->
+    <!-- TAB 1: HOME CATALOG -->
     <section id="tab-home" class="space-y-6">
-      <!-- Banner Hero -->
-      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-900/80 via-slate-900 to-amber-950/60 border border-purple-500/20 p-6 md:p-10 shadow-2xl">
-        <div class="relative z-10 max-w-xl space-y-4">
-          <span class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-full uppercase tracking-widest">
-            Simulasi Koin Virtual 100% Gratis
-          </span>
-          <h1 class="text-3xl md:text-5xl font-black text-white leading-tight">
-            Rasakan Sensasi Jackpot <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-200">Tanpa Risiko</span>
+      
+      <!-- HERO BANNER -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-950 via-slate-900 to-amber-950/80 border border-amber-500/30 p-6 md:p-8 shadow-2xl neon-border-gold">
+        <div class="relative z-10 max-w-2xl space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold rounded-full uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            Simulasi Koin Virtual Live RTP
+          </div>
+          <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
+            Sensasi Spin Gacor <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500">Real Hit Rate</span>
           </h1>
-          <p class="text-slate-400 text-sm md:text-base">
-            Mainkan 20+ variasi slot arcade favorit dengan animasi mulus, grafik keren, dan naikkan level akunmu sampai Server Owner!
+          <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+            Mainkan 20 pilihan mesin slot arcade dengan perhitungan persentase RTP presisi. Atur taruhan sesukamu dan rasakan fitur Owner Control Panel real-time!
           </p>
         </div>
-        <div class="absolute -right-10 -bottom-10 opacity-20 md:opacity-40 pointer-events-none">
-          <i class="fa-solid fa-dice-five text-[220px] text-amber-400"></i>
+        <div class="absolute -right-8 -bottom-10 opacity-20 sm:opacity-30 pointer-events-none">
+          <i class="fa-solid fa-dice text-[180px] sm:text-[240px] text-amber-400"></i>
         </div>
       </div>
 
-      <!-- Kategori Filter & Search -->
-      <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
-          <i class="fa-solid fa-fire text-amber-500"></i> Game Populer Hari Ini
-        </h2>
-        <div class="relative w-full sm:w-64">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-          <input type="text" id="search-game" oninput="filterGames()" placeholder="Cari nama game..." class="w-full bg-slate-800/80 border border-slate-700/80 text-sm rounded-xl pl-9 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
+      <!-- SEARCH & RTP STATS HEADER -->
+      <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-amber-500/10 rounded-xl border border-amber-500/20 text-amber-400">
+            <i class="fa-solid fa-chart-line text-lg"></i>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-100">Global System Live RTP Rate</h2>
+            <div class="flex items-center gap-2">
+              <span id="global-rtp-badge" class="text-xs font-extrabold text-emerald-400">96.8% GACOR</span>
+              <span class="text-[10px] text-slate-400">• Terhubung Kontrol Owner</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative w-full sm:w-72">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" id="search-game" oninput="filterGames()" placeholder="Cari nama game slot..." class="w-full bg-slate-950 border border-slate-800 text-xs rounded-xl pl-9 pr-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition" />
         </div>
       </div>
 
-      <!-- Grid Game (20 Games) -->
-      <div id="game-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        <!-- Generated by JS -->
+      <!-- GAME GRID (20 SLOT GAMES) -->
+      <div id="game-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
+        <!-- Rendered Dynamic by JS -->
       </div>
     </section>
 
-    <!-- TAB: GAMEPLAY SLOT -->
+    <!-- TAB 2: GAMEPLAY SLOT MACHINE -->
     <section id="tab-game" class="hidden space-y-6">
-      <div class="flex justify-between items-center">
-        <button onclick="switchTab('home')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold flex items-center gap-2 border border-slate-700 transition">
+      
+      <!-- TOP GAMEPLAY CONTROLS -->
+      <div class="flex flex-wrap justify-between items-center gap-3 bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800">
+        <button onclick="switchTab('home')" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-2 border border-slate-700 transition">
           <i class="fa-solid fa-arrow-left"></i> Kembali ke Katalog
         </button>
-        <div class="text-right">
-          <h3 id="current-game-title" class="text-lg font-bold text-amber-400">Olympus Zeus</h3>
-          <p class="text-xs text-slate-400">RTP Rate: <span id="game-rtp-display" class="text-emerald-400 font-bold">96.5%</span></p>
+
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <h3 id="current-game-title" class="text-sm sm:text-base font-extrabold text-amber-400">Olympus Zeus</h3>
+            <p class="text-[11px] text-slate-400">RTP Live Game: <span id="game-rtp-display" class="text-emerald-400 font-bold">96.8%</span></p>
+          </div>
+          <div id="game-icon-display" class="w-10 h-10 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center text-2xl">
+            ⚡
+          </div>
         </div>
       </div>
 
-      <!-- SLOT MACHINE CANVAS / CONTAINER -->
-      <div class="max-w-2xl mx-auto bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl border-2 border-amber-500/40 p-4 sm:p-6 shadow-2xl relative overflow-hidden">
-        <!-- Frame Glow -->
-        <div class="absolute inset-0 bg-amber-500/5 pointer-events-none"></div>
+      <!-- SLOT MACHINE CABINET -->
+      <div class="max-w-2xl mx-auto bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 rounded-3xl border-2 border-amber-500/50 p-4 sm:p-6 shadow-2xl relative overflow-hidden neon-border-gold">
+        
+        <!-- Win Overlay Animation Text -->
+        <div id="big-win-overlay" class="hidden absolute inset-0 bg-slate-950/90 z-30 flex flex-col items-center justify-center text-center p-6 backdrop-blur-sm animate-bounce-short">
+          <i class="fa-solid fa-trophy text-6xl sm:text-7xl text-amber-400 mb-2 animate-pulse"></i>
+          <h2 id="win-overlay-title" class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-100">
+            SENSATIONAL WIN!
+          </h2>
+          <p id="win-overlay-amount" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-2">
+            +Rp 50,000
+          </p>
+          <button onclick="closeWinOverlay()" class="mt-6 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl transition uppercase tracking-wider">
+            Lanjutkan Spin
+          </button>
+        </div>
 
-        <!-- Reel Viewport (3x3 Grid) -->
-        <div class="bg-slate-950 border-4 border-amber-500/30 rounded-2xl p-3 grid grid-cols-3 gap-2 relative shadow-inner">
+        <!-- REEL VIEWPORT (3 REELS GRID) -->
+        <div class="bg-slate-950 border-4 border-amber-500/40 rounded-2xl p-3 grid grid-cols-3 gap-2 sm:gap-3 relative shadow-inner">
           
-          <!-- Reel Column 1 -->
-          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
-            <div id="reel-1" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
+          <!-- REEL 1 -->
+          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-48 sm:h-60 border border-slate-800/80 flex flex-col justify-around items-center relative">
+            <div id="reel-1" class="flex flex-col items-center justify-around w-full h-full text-4xl sm:text-6xl transition-all duration-100">
               <div>⚡</div><div>👑</div><div>💎</div>
             </div>
           </div>
 
-          <!-- Reel Column 2 -->
-          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
-            <div id="reel-2" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
+          <!-- REEL 2 -->
+          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-48 sm:h-60 border border-slate-800/80 flex flex-col justify-around items-center relative">
+            <div id="reel-2" class="flex flex-col items-center justify-around w-full h-full text-4xl sm:text-6xl transition-all duration-100">
               <div>⚡</div><div>👑</div><div>💎</div>
             </div>
           </div>
 
-          <!-- Reel Column 3 -->
-          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
-            <div id="reel-3" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
+          <!-- REEL 3 -->
+          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-48 sm:h-60 border border-slate-800/80 flex flex-col justify-around items-center relative">
+            <div id="reel-3" class="flex flex-col items-center justify-around w-full h-full text-4xl sm:text-6xl transition-all duration-100">
               <div>⚡</div><div>👑</div><div>💎</div>
             </div>
           </div>
 
-          <!-- Win Line Overlay -->
-          <div id="win-line" class="hidden absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-amber-400 shadow-[0_0_15px_#f59e0b] z-20"></div>
+          <!-- WIN LINE INDICATOR OVERLAY -->
+          <div id="win-line" class="hidden absolute left-2 right-2 top-1/2 -translate-y-1/2 h-1.5 bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-400 shadow-[0_0_20px_#f59e0b] z-20 rounded-full animate-pulse"></div>
         </div>
 
-        <!-- Notification Banner -->
-        <div id="slot-status" class="mt-4 text-center py-2 px-4 bg-slate-800/80 border border-slate-700/60 rounded-xl text-sm font-semibold text-slate-300 min-h-[40px] flex items-center justify-center">
-          Tekan SPIN untuk memulai taruhan virtual!
+        <!-- STATUS DISPLAY BANNER -->
+        <div id="slot-status" class="mt-4 text-center py-2.5 px-4 bg-slate-950/80 border border-slate-800 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 min-h-[42px] flex items-center justify-center shadow-inner">
+          Siap diputar! Masukkan jumlah taruhan kamu.
         </div>
 
-        <!-- Control Deck -->
-        <div class="mt-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-4">
-          <div class="flex flex-wrap items-center justify-between gap-4">
-            <!-- Bet Amount Selector -->
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold text-slate-400 uppercase">Taruhan:</span>
-              <button onclick="adjustBet(-500)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700">-</button>
-              <span id="bet-amount" class="text-sm font-black text-amber-400 min-w-[70px] text-center">1,000</span>
-              <button onclick="adjustBet(500)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700">+</button>
-              <button onclick="setMaxBet()" class="px-2 py-1 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 border border-purple-500/40 text-xs rounded-lg font-semibold">MAX</button>
+        <!-- CONTROL DECK (FLEXIBLE BET INPUT & ADJUSTMENTS) -->
+        <div class="mt-5 bg-slate-950/90 border border-slate-800 rounded-2xl p-4 space-y-4 shadow-xl">
+          
+          <!-- INPUT BET CUSTOM & QUICK BUTTONS -->
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-coins text-amber-400"></i> Nominal Taruhan (Ketik Manual):
+              </label>
+              <span class="text-[11px] text-slate-400">Saldo: <b id="display-user-balance" class="text-amber-300">Rp 0</b></span>
             </div>
 
-            <!-- Auto Spin Toggle -->
-            <div class="flex items-center gap-2">
-              <button id="btn-autospin" onclick="toggleAutoSpin()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-rotate"></i> Auto Spin: <span id="autospin-state" class="text-red-400">OFF</span>
-              </button>
+            <!-- BET INPUT INPUT BOX -->
+            <div class="relative flex items-center">
+              <span class="absolute left-3.5 text-sm font-black text-amber-400">Rp</span>
+              <input type="number" id="input-bet-amount" oninput="validateAndSetBet(this.value)" value="1000" min="100" class="w-full bg-slate-900 border-2 border-amber-500/40 rounded-xl pl-11 pr-4 py-2.5 text-base font-black text-amber-300 focus:outline-none focus:border-amber-400 transition" />
+            </div>
+
+            <!-- QUICK BET ADJUSTMENT BUTTONS -->
+            <div class="grid grid-cols-6 gap-1.5">
+              <button onclick="quickBet('min')" class="py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-extrabold rounded-lg border border-slate-700">MIN</button>
+              <button onclick="quickBet('half')" class="py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-extrabold rounded-lg border border-slate-700">1/2</button>
+              <button onclick="quickBet('double')" class="py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-extrabold rounded-lg border border-slate-700">2X</button>
+              <button onclick="quickBet('add1k')" class="py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-[10px] font-extrabold rounded-lg border border-slate-700">+1K</button>
+              <button onclick="quickBet('add5k')" class="py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-[10px] font-extrabold rounded-lg border border-slate-700">+5K</button>
+              <button onclick="quickBet('max')" class="py-1.5 bg-purple-600/40 hover:bg-purple-600/60 text-purple-200 text-[10px] font-extrabold rounded-lg border border-purple-500/40">MAX</button>
             </div>
           </div>
 
-          <!-- Main Spin Button -->
-          <button id="btn-spin" onclick="executeSpin()" class="w-full py-4 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-lg rounded-2xl shadow-lg shadow-amber-500/25 active:scale-[0.98] transition uppercase tracking-wider flex items-center justify-center gap-2">
+          <!-- AUTO SPIN & SOUND CONTROLS -->
+          <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+            <button id="btn-sound-toggle" onclick="toggleSound()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold border border-slate-800 flex items-center gap-1.5">
+              <i id="sound-icon" class="fa-solid fa-volume-high text-amber-400"></i> Suara: <span id="sound-state" class="text-emerald-400 font-bold">ON</span>
+            </button>
+
+            <button id="btn-autospin" onclick="toggleAutoSpin()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold border border-slate-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-rotate text-amber-400"></i> Auto Spin: <span id="autospin-state" class="text-red-400 font-bold">OFF</span>
+            </button>
+          </div>
+
+          <!-- MAIN SPIN BUTTON -->
+          <button id="btn-spin" onclick="executeSpin()" class="w-full py-4 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-lg rounded-2xl shadow-xl shadow-amber-500/25 active:scale-[0.98] transition uppercase tracking-wider flex items-center justify-center gap-2">
             <i class="fa-solid fa-play"></i> PUTAR SEKARANG
           </button>
         </div>
       </div>
 
-      <!-- History & Paytable Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+      <!-- PAYTABLE & HISTORY SECTION -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
         <!-- Paytable -->
         <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
-          <h4 class="font-bold text-amber-400 text-sm mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-table-list"></i> Tabel Kelipatan Hadiah (Paytable)
+          <h4 class="font-bold text-amber-400 text-xs sm:text-sm mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-table-list"></i> Skema Kelipatan Hadiah (Paytable)
           </h4>
           <div id="paytable-list" class="grid grid-cols-2 gap-2 text-xs">
-            <!-- Populated by JS -->
+            <!-- Populated Dynamic -->
           </div>
         </div>
 
         <!-- History Spin -->
         <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
-          <h4 class="font-bold text-amber-400 text-sm mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-clock-rotate-left"></i> Riwayat Putaran
+          <h4 class="font-bold text-amber-400 text-xs sm:text-sm mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left"></i> Riwayat Putaran Terakhir
           </h4>
           <div id="spin-history" class="space-y-2 max-h-48 overflow-y-auto text-xs pr-1">
             <p class="text-slate-500 italic text-center py-4">Belum ada riwayat putaran.</p>
@@ -212,93 +338,97 @@
       </div>
     </section>
 
-    <!-- TAB: PROFILE & OWNER DASHBOARD -->
+    <!-- TAB 3: USER PROFILE & OWNER CONTROL PANEL -->
     <section id="tab-profile" class="hidden space-y-6">
+      
+      <!-- USER CARD INFO -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
         <div class="flex flex-col md:flex-row items-center gap-6">
-          <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-3xl font-black text-white shadow-lg shadow-purple-500/30">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-amber-500 flex items-center justify-center text-3xl font-black text-white shadow-lg shadow-purple-500/20">
             <span id="profile-avatar-initial">U</span>
           </div>
 
           <div class="space-y-2 text-center md:text-left flex-grow">
             <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center md:justify-start">
               <h2 id="profile-username" class="text-2xl font-black text-white">Guest User</h2>
-              <span id="profile-role-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 w-fit mx-auto md:mx-0">
+              <span id="profile-role-badge" class="px-3 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 w-fit mx-auto md:mx-0">
                 Member
               </span>
             </div>
 
-            <!-- EXP Level Progress Bar -->
+            <!-- EXP LEVEL PROGRESS BAR -->
             <div class="max-w-md space-y-1">
               <div class="flex justify-between text-xs font-semibold">
                 <span id="profile-level-text" class="text-amber-400">Level 1</span>
                 <span id="profile-exp-text" class="text-slate-400">0 / 100 EXP</span>
               </div>
-              <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700/80 p-0.5">
+              <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800 p-0.5">
                 <div id="profile-exp-bar" class="bg-gradient-to-r from-amber-500 to-yellow-300 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
               </div>
             </div>
           </div>
 
-          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center min-w-[180px]">
-            <p class="text-xs text-slate-400 uppercase font-semibold">Saldo Virtual</p>
+          <!-- REFILL BALANCE BOX -->
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center min-w-[200px] w-full md:w-auto">
+            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Saldo Virtual Akun</p>
             <p id="profile-balance" class="text-2xl font-black text-amber-400 mt-1">Rp 0</p>
-            <button onclick="refillVirtualBalance()" class="mt-3 w-full py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs rounded-xl font-bold transition">
-              <i class="fa-solid fa-arrows-rotate"></i> Refill Saldo
+            <button onclick="refillVirtualBalance()" class="mt-3 w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs rounded-xl font-bold transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-arrows-rotate"></i> Refill Gratis (+25K)
             </button>
           </div>
         </div>
       </div>
 
-      <!-- OWNER DASHBOARD (ONLY VISIBLE TO OWNER/ADMIN) -->
-      <div id="owner-dashboard" class="hidden bg-slate-900/90 border-2 border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-6">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
+      <!-- OWNER CONTROL PANEL (STRICTLY OWNER ONLY) -->
+      <div id="owner-dashboard" class="hidden bg-slate-900/90 border-2 border-purple-500/50 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4">
           <div>
-            <h3 class="text-xl font-black text-purple-400 flex items-center gap-2">
-              <i class="fa-solid fa-user-gear"></i> Owner Control Panel
+            <h3 class="text-xl font-black text-purple-300 flex items-center gap-2">
+              <i class="fa-solid fa-user-gear text-purple-400"></i> Owner Live Control Panel
             </h3>
-            <p class="text-xs text-slate-400">Kelola member, atur win rate, dan top-up saldo secara real-time.</p>
+            <p class="text-xs text-slate-400">Kelola persentase kemenangan (RTP Live) dan atur saldo member secara real-time.</p>
           </div>
-          <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 rounded-full text-xs font-bold">
-            Cloud Mode: Active
+          <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 rounded-full text-xs font-bold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Mode Owner Aktif
           </span>
         </div>
 
-        <!-- SETTING WIN RATE / RTP GLOBAL -->
+        <!-- REAL WIN RATE / RTP SLIDER CONTROL -->
         <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-3">
           <div class="flex justify-between items-center">
-            <h4 class="font-bold text-amber-400 text-sm flex items-center gap-2">
-              <i class="fa-solid fa-sliders"></i> Pengaturan Presentase Kemenangan (RTP Global)
+            <h4 class="font-bold text-amber-400 text-xs sm:text-sm flex items-center gap-2">
+              <i class="fa-solid fa-sliders"></i> Atur Persentase Kemenangan Real (RTP Live)
             </h4>
-            <span id="winrate-slider-val" class="text-lg font-black text-emerald-400">50%</span>
+            <span id="winrate-slider-val" class="text-lg font-black text-emerald-400">80% (Gacor)</span>
           </div>
-          <p class="text-xs text-slate-400">
-            Geser slider di bawah ini untuk mengatur seberapa mudah/sering member mendapatkan jackpot di semua game.
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Semakin tinggi RTP yang diset Owner, semakin besar algoritma spin memberikan kombinasi simbol jackpot/kemenangan kepada player.
           </p>
-          <div class="flex items-center gap-4">
-            <span class="text-xs font-bold text-red-400">10% (Sulit)</span>
-            <input type="range" id="winrate-range" min="10" max="90" value="50" oninput="updateWinRateSetting(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
-            <span class="text-xs font-bold text-emerald-400">90% (Gacor)</span>
+          <div class="flex items-center gap-4 pt-2">
+            <span class="text-xs font-bold text-red-400">10% (Rungkad)</span>
+            <input type="range" id="winrate-range" min="10" max="98" value="80" oninput="updateWinRateSetting(this.value)" class="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+            <span class="text-xs font-bold text-emerald-400">98% (Max Gacor)</span>
           </div>
         </div>
 
-        <!-- MEMBER MANAGEMENT TABLE -->
+        <!-- MEMBER LIST & BALANCE MANAGEMENT -->
         <div class="space-y-3">
-          <h4 class="font-bold text-slate-200 text-sm flex items-center gap-2">
-            <i class="fa-solid fa-users"></i> Daftar Riwayat Member & Saldo
+          <h4 class="font-bold text-slate-200 text-xs sm:text-sm flex items-center gap-2">
+            <i class="fa-solid fa-users"></i> Kelola Saldo Member Terdaftar
           </h4>
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto rounded-2xl border border-slate-800">
             <table class="w-full text-left text-xs text-slate-300">
               <thead class="bg-slate-950 text-slate-400 uppercase font-bold border-b border-slate-800">
                 <tr>
                   <th class="p-3">Username</th>
+                  <th class="p-3">Role</th>
                   <th class="p-3">Level</th>
-                  <th class="p-3">Saldo</th>
-                  <th class="p-3">Aksi Owner</th>
+                  <th class="p-3">Saldo Virtual</th>
+                  <th class="p-3 text-center">Aksi Owner</th>
                 </tr>
               </thead>
-              <tbody id="owner-member-table-body" class="divide-y divide-slate-800/60">
-                <!-- Populated dynamically -->
+              <tbody id="owner-member-table-body" class="divide-y divide-slate-800/60 bg-slate-900/50">
+                <!-- Populated Dynamically -->
               </tbody>
             </table>
           </div>
@@ -308,26 +438,32 @@
 
   </main>
 
-  <!-- BOTTOM MOBILE NAVIGATION BAR -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 z-40 px-6 py-2 flex justify-around items-center">
-    <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 text-xs font-semibold text-amber-400">
+  <!-- ================= MOBILE BOTTOM NAVIGATION ================= -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/80 z-40 px-4 py-2.5 flex justify-around items-center">
+    <button onclick="switchTab('home')" id="nav-mob-home" class="flex flex-col items-center gap-1 text-[11px] font-bold text-amber-400">
       <i class="fa-solid fa-house text-lg"></i> Home
     </button>
-    <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-xs font-semibold text-slate-400 hover:text-amber-400">
-      <i class="fa-solid fa-user text-lg"></i> Profil
+    <button onclick="switchTab('game')" id="nav-mob-game" class="flex flex-col items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-amber-400">
+      <i class="fa-solid fa-gamepad text-lg"></i> Spin
+    </button>
+    <button onclick="switchTab('profile')" id="nav-mob-profile" class="flex flex-col items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-amber-400">
+      <i class="fa-solid fa-user text-lg"></i> Profile
     </button>
   </nav>
 
-  <!-- MODAL AUTH (LOGIN / REGISTER) -->
-  <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <!-- ================= AUTH MODAL (LOGIN / REGISTER) ================= -->
+  <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl relative">
       <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white">
         <i class="fa-solid fa-xmark text-xl"></i>
       </button>
 
       <div class="text-center space-y-1">
-        <h3 class="text-2xl font-black text-white">Akses Akun ArcadeSlot</h3>
-        <p class="text-xs text-slate-400">Login terlebih dahulu untuk bermain dan menyimpan saldo virtualmu!</p>
+        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-2xl mb-2">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h3 class="text-2xl font-black text-white">Login Akun HalseySlot</h3>
+        <p class="text-xs text-slate-400">Masuk untuk menyimpan saldo virtual & statistik kamu.</p>
       </div>
 
       <div class="space-y-3">
@@ -342,41 +478,77 @@
       </div>
 
       <div class="flex gap-3">
-        <button onclick="handleLogin()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-sm transition">
+        <button onclick="handleLogin()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition uppercase">
           LOGIN
         </button>
-        <button onclick="handleRegister()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-sm border border-slate-700 transition">
+        <button onclick="handleRegister()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs sm:text-sm border border-slate-700 transition uppercase">
           DAFTAR
         </button>
       </div>
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- ================= JAVASCRIPT SYSTEM ENGINE ================= -->
   <script>
-    // --- 1. FIREBASE INITIALIZATION (Ganti config jika punya sendiri) ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyDummyKeyForArcadeSlotSim2026",
-      authDomain: "arcadeslot-sim.firebaseapp.com",
-      databaseURL: "https://arcadeslot-sim-default-rtdb.firebaseio.com",
-      projectId: "arcadeslot-sim",
-      storageBucket: "arcadeslot-sim.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:dummyappid"
-    };
+    // --- AUDIO SYNTHESIZER (WEB AUDIO API) ---
+    let audioCtx = null;
+    let soundEnabled = true;
 
-    // Fallback Mock Local Data jika Firebase Key tidak diisi secara live
-    let isFirebaseActive = false;
-    try {
-      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      isFirebaseActive = true;
-    } catch (e) {
-      console.warn("Firebase tidak terkonfigurasi, berjalan pada Local Engine Mode.");
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
     }
 
-    // --- DATABASE STATE ---
+    function playSpinSound() {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+      } catch(e){}
+    }
+
+    function playWinSound(isBigWin = false) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const now = audioCtx.currentTime;
+        const notes = isBigWin ? [261, 329, 392, 523, 659, 783] : [329, 392, 523];
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+          gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.1);
+          osc.stop(now + idx * 0.1 + 0.25);
+        });
+      } catch(e){}
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('sound-state').innerText = soundEnabled ? 'ON' : 'OFF';
+      document.getElementById('sound-state').className = soundEnabled ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold';
+      document.getElementById('sound-icon').className = soundEnabled ? 'fa-solid fa-volume-high text-amber-400' : 'fa-solid fa-volume-xmark text-slate-500';
+    }
+
+    // --- GAME ENGINE STATE ---
     let currentUser = null;
-    let globalWinRate = 50; // Default 50%
+    let globalWinRate = 80; // Default Win Rate
     let currentBet = 1000;
     let isAutoSpin = false;
     let autoSpinInterval = null;
@@ -395,7 +567,7 @@
       { id: 9, title: 'Space Galaxy', icon: '🚀', symbols: ['🚀','🪐','⭐','🛸','👾','☄️'] },
       { id: 10, title: 'Lucky Leprechaun', icon: '🍀', symbols: ['🍀','🎩','🌈','🍺','🪙','🎻'] },
       { id: 11, title: 'Ninja Shadow', icon: '🥷', symbols: ['🥷','🗡️','🌀','📜','🏯','🔥'] },
-      { id: 12, title: 'Wild Safari', icon: '🦁', symbols: ['🦁','🐘','🦒','🦓','🌴','🍖'] },
+      { id: 12, title: 'Wild Safari', icon: '🦁', symbols: ['🦁','🐘','🦒','ZEBRA','🌴','🍖'] },
       { id: 13, title: 'Ocean Deep', icon: '🪼', symbols: ['🪼','🦈','🐙','🐚','🪸','⚓'] },
       { id: 14, title: 'Vampire Night', icon: '🦇', symbols: ['🦇','🏰','🍷','🕯️','🗡️','🌙'] },
       { id: 15, title: 'Candy Party', icon: '🧁', symbols: ['🧁','🍩','🍪','🍨','🍫','🍬'] },
@@ -406,18 +578,65 @@
       { id: 20, title: 'Retro Arcade', icon: '👾', symbols: ['👾','🕹️','🎮','👾','⭐','🚀'] }
     ];
 
-    // INITIAL SETUP
+    // --- INITIAL LOAD ---
     window.addEventListener('DOMContentLoaded', () => {
+      // Sync WinRate from Storage
+      const savedWR = localStorage.getItem('halsey_winrate');
+      if (savedWR) globalWinRate = parseInt(savedWR);
+
+      activeGame = GAMES_DATA[0];
       renderGameGrid(GAMES_DATA);
       loadSavedSession();
       renderPaytable();
+      updateRTPDisplays();
     });
 
-    // --- TAB SWITCHING ---
+    // --- STOP AUTOSPIN HELPER (FIX GHOST SPINNING BUG) ---
+    function stopAutoSpin() {
+      if (isAutoSpin) {
+        isAutoSpin = false;
+        if (autoSpinInterval) {
+          clearInterval(autoSpinInterval);
+          autoSpinInterval = null;
+        }
+        const stateEl = document.getElementById('autospin-state');
+        if (stateEl) {
+          stateEl.innerText = 'OFF';
+          stateEl.className = 'text-red-400 font-bold';
+        }
+      }
+    }
+
+    // --- NAVIGATION TAB SWITCHING ENGINE ---
     function switchTab(tab) {
+      // Matikan autospin jika berpindah halaman/tab
+      stopAutoSpin();
+
       document.getElementById('tab-home').classList.add('hidden');
       document.getElementById('tab-game').classList.add('hidden');
       document.getElementById('tab-profile').classList.add('hidden');
+
+      // Desktop Nav Styling Reset
+      ['home', 'game', 'profile'].forEach(t => {
+        const deskBtn = document.getElementById(`nav-desk-${t}`);
+        const mobBtn = document.getElementById(`nav-mob-${t}`);
+        if (deskBtn) {
+          deskBtn.className = "px-4 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-white";
+        }
+        if (mobBtn) {
+          mobBtn.className = "flex flex-col items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-amber-400";
+        }
+      });
+
+      // Highlight Active Tab
+      const activeDesk = document.getElementById(`nav-desk-${tab}`);
+      const activeMob = document.getElementById(`nav-mob-${tab}`);
+      if (activeDesk) {
+        activeDesk.className = "px-4 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-amber-500 text-slate-950 shadow";
+      }
+      if (activeMob) {
+        activeMob.className = "flex flex-col items-center gap-1 text-[11px] font-bold text-amber-400";
+      }
 
       if (tab === 'home') document.getElementById('tab-home').classList.remove('hidden');
       if (tab === 'game') document.getElementById('tab-game').classList.remove('hidden');
@@ -431,13 +650,16 @@
     function renderGameGrid(games) {
       const grid = document.getElementById('game-grid');
       grid.innerHTML = games.map(g => `
-        <div onclick="openGame(${g.id})" class="bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer group transition duration-300 transform hover:-translate-y-1">
-          <div class="w-16 h-16 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-4xl group-hover:scale-110 transition">
+        <div onclick="openGame(${g.id})" class="bg-slate-900/90 border border-slate-800 hover:border-amber-500/60 rounded-2xl p-3.5 flex flex-col items-center gap-2.5 cursor-pointer group transition duration-300 transform hover:-translate-y-1 shadow-lg">
+          <div class="w-14 h-14 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-3xl group-hover:scale-110 transition shadow-inner">
             ${g.icon}
           </div>
-          <div class="text-center">
-            <h4 class="font-bold text-sm text-slate-200 group-hover:text-amber-400">${g.title}</h4>
-            <span class="text-[10px] text-emerald-400 font-semibold">RTP Live 97.2%</span>
+          <div class="text-center w-full">
+            <h4 class="font-extrabold text-xs text-slate-200 group-hover:text-amber-400 truncate">${g.title}</h4>
+            <div class="mt-1 flex items-center justify-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-[10px] text-emerald-400 font-bold rtp-badge-text">RTP ${globalWinRate}.8%</span>
+            </div>
           </div>
         </div>
       `).join('');
@@ -449,18 +671,22 @@
       renderGameGrid(filtered);
     }
 
-    // --- OPEN GAME CHECK LOGIN ---
     function openGame(gameId) {
-      if (!currentUser) {
-        openAuthModal();
-        return;
-      }
+      stopAutoSpin(); // pastikan autospin mati saat ganti game
       activeGame = GAMES_DATA.find(g => g.id === gameId);
       document.getElementById('current-game-title').innerText = activeGame.title;
+      document.getElementById('game-icon-display').innerText = activeGame.icon;
+      
+      // Initial reel icons update
+      const syms = activeGame.symbols;
+      document.getElementById('reel-1').innerHTML = `<div>${syms[0]}</div><div>${syms[1]}</div><div>${syms[2]}</div>`;
+      document.getElementById('reel-2').innerHTML = `<div>${syms[0]}</div><div>${syms[1]}</div><div>${syms[2]}</div>`;
+      document.getElementById('reel-3').innerHTML = `<div>${syms[0]}</div><div>${syms[1]}</div><div>${syms[2]}</div>`;
+
       switchTab('game');
     }
 
-    // --- AUTHENTICATION ENGINE ---
+    // --- AUTHENTICATION SYSTEM ---
     function openAuthModal() {
       document.getElementById('modal-auth').classList.remove('hidden');
     }
@@ -469,14 +695,14 @@
     }
 
     function handleLogin() {
-      const userVal = document.getElementById('auth-username').value.trim();
-      const passVal = document.getElementById('auth-password').value.trim();
+      const uVal = document.getElementById('auth-username').value.trim();
+      const pVal = document.getElementById('auth-password').value.trim();
 
-      if (!userVal || !passVal) return alert('Isi username & password!');
+      if (!uVal || !pVal) return alert('Isi username & password!');
 
-      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
-      if (db[userVal] && db[userVal].password === passVal) {
-        currentUser = db[userVal];
+      let db = JSON.parse(localStorage.getItem('halsey_users') || '{}');
+      if (db[uVal] && db[uVal].password === pVal) {
+        currentUser = db[uVal];
         saveSession();
         closeAuthModal();
         updateNavUser();
@@ -487,61 +713,72 @@
     }
 
     function handleRegister() {
-      const userVal = document.getElementById('auth-username').value.trim();
-      const passVal = document.getElementById('auth-password').value.trim();
+      const uVal = document.getElementById('auth-username').value.trim();
+      const pVal = document.getElementById('auth-password').value.trim();
 
-      if (!userVal || !passVal) return alert('Isi username & password!');
+      if (!uVal || !pVal) return alert('Isi username & password!');
 
-      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
-      if (db[userVal]) return alert('Username sudah terdaftar!');
+      let db = JSON.parse(localStorage.getItem('halsey_users') || '{}');
+      if (db[uVal]) return alert('Username sudah terdaftar!');
 
-      const isOwner = (userVal.toLowerCase() === 'halsey' || userVal.toLowerCase() === 'halsey05');
-      
+      const isOwner = (uVal.toLowerCase() === 'halsey' || uVal.toLowerCase() === 'halsey05' || uVal.toLowerCase() === 'owner');
+
       currentUser = {
-        username: userVal,
-        password: passVal,
+        username: uVal,
+        password: pVal,
         balance: 50000,
         exp: 0,
         level: 1,
         role: isOwner ? 'Owner' : 'Member'
       };
 
-      db[userVal] = currentUser;
-      localStorage.setItem('arcade_users', JSON.stringify(db));
+      db[uVal] = currentUser;
+      localStorage.setItem('halsey_users', JSON.stringify(db));
       saveSession();
       closeAuthModal();
       updateNavUser();
-      alert('Pendaftaran Berhasil! Saldo Bonus Virtual Rp 50.000 ditambahkan.');
+      alert('Pendaftaran Berhasil! Saldo Bonus Virtual Rp 50.000 telah ditambahkan.');
     }
 
     function saveSession() {
-      localStorage.setItem('arcade_session', JSON.stringify(currentUser));
-      // Sync back to db
-      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      localStorage.setItem('halsey_session', JSON.stringify(currentUser));
+      let db = JSON.parse(localStorage.getItem('halsey_users') || '{}');
       if (currentUser) {
         db[currentUser.username] = currentUser;
-        localStorage.setItem('arcade_users', JSON.stringify(db));
+        localStorage.setItem('halsey_users', JSON.stringify(db));
       }
     }
 
     function loadSavedSession() {
-      const sess = localStorage.getItem('arcade_session');
+      const sess = localStorage.getItem('halsey_session');
       if (sess) {
         currentUser = JSON.parse(sess);
-        updateNavUser();
       } else {
-        updateNavUser();
+        // Auto register default guest
+        currentUser = {
+          username: 'GuestPlayer',
+          password: 'guestpassword',
+          balance: 25000,
+          exp: 0,
+          level: 1,
+          role: 'Member'
+        };
+        saveSession();
       }
+      updateNavUser();
     }
 
     function updateNavUser() {
       const container = document.getElementById('nav-user-info');
+      const balDisplay = document.getElementById('display-user-balance');
+      
       if (currentUser) {
+        if (balDisplay) balDisplay.innerText = 'Rp ' + currentUser.balance.toLocaleString();
         container.innerHTML = `
-          <div onclick="switchTab('profile')" class="cursor-pointer flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700/80">
+          <div onclick="switchTab('profile')" class="cursor-pointer flex items-center gap-2 bg-slate-950 hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-800 transition">
             <i class="fa-solid fa-coins text-amber-400 text-xs"></i>
             <span class="text-xs font-black text-amber-300">Rp ${currentUser.balance.toLocaleString()}</span>
-            <span class="text-xs text-slate-400">| ${currentUser.username}</span>
+            <span class="text-xs text-slate-400 hidden sm:inline">| ${currentUser.username}</span>
           </div>
         `;
       } else {
@@ -553,14 +790,31 @@
       }
     }
 
-    // --- OWNER WIN RATE SETTING CONTROL ---
+    // --- OWNER CONTROL & DYNAMIC REAL RTP ENGINE ---
     function updateWinRateSetting(val) {
       globalWinRate = parseInt(val);
-      document.getElementById('winrate-slider-val').innerText = globalWinRate + '%';
-      localStorage.setItem('arcade_winrate', globalWinRate);
+      localStorage.setItem('halsey_winrate', globalWinRate);
+      
+      let label = `${globalWinRate}% `;
+      if (globalWinRate < 30) label += '(Rungkad)';
+      else if (globalWinRate < 60) label += '(Sedang)';
+      else if (globalWinRate < 85) label += '(Gacor)';
+      else label += '(Max Gacor)';
+
+      document.getElementById('winrate-slider-val').innerText = label;
+      updateRTPDisplays();
     }
 
-    // --- PROFILE & OWNER TAB RENDER ---
+    function updateRTPDisplays() {
+      document.getElementById('global-rtp-badge').innerText = `${globalWinRate}.8% LIVE`;
+      document.getElementById('game-rtp-display').innerText = `${globalWinRate}.8%`;
+      
+      // Update all badges on home cards
+      document.querySelectorAll('.rtp-badge-text').forEach(el => {
+        el.innerText = `RTP ${globalWinRate}.8%`;
+      });
+    }
+
     function renderProfileTab() {
       if (!currentUser) return;
       document.getElementById('profile-username').innerText = currentUser.username;
@@ -568,40 +822,41 @@
       document.getElementById('profile-role-badge').innerText = currentUser.role;
       document.getElementById('profile-balance').innerText = 'Rp ' + currentUser.balance.toLocaleString();
 
-      // EXP logic
+      // EXP Calculation
       const expNeeded = currentUser.level * 100;
       const expPct = Math.min(100, Math.floor((currentUser.exp / expNeeded) * 100));
       document.getElementById('profile-level-text').innerText = 'Level ' + currentUser.level;
       document.getElementById('profile-exp-text').innerText = `${currentUser.exp} / ${expNeeded} EXP`;
       document.getElementById('profile-exp-bar').style.width = expPct + '%';
 
-      // OWNER PANEL VISIBILITY
+      // OWNER DASHBOARD VISIBILITY
       if (currentUser.role === 'Owner') {
         document.getElementById('owner-dashboard').classList.remove('hidden');
         renderOwnerMemberTable();
         
-        const savedWR = localStorage.getItem('arcade_winrate') || 50;
+        const savedWR = localStorage.getItem('halsey_winrate') || 80;
         document.getElementById('winrate-range').value = savedWR;
-        document.getElementById('winrate-slider-val').innerText = savedWR + '%';
+        updateWinRateSetting(savedWR);
       } else {
         document.getElementById('owner-dashboard').classList.add('hidden');
       }
     }
 
     function renderOwnerMemberTable() {
-      const db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      const db = JSON.parse(localStorage.getItem('halsey_users') || '{}');
       const tbody = document.getElementById('owner-member-table-body');
       tbody.innerHTML = '';
 
       Object.values(db).forEach(u => {
         tbody.innerHTML += `
-          <tr>
-            <td class="p-3 font-semibold text-slate-200">${u.username} ${u.role === 'Owner' ? '👑' : ''}</td>
+          <tr class="hover:bg-slate-800/40 transition">
+            <td class="p-3 font-semibold text-slate-200">${u.username}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role==='Owner'?'bg-purple-500/20 text-purple-300 border border-purple-500/30':'bg-slate-800 text-slate-400'}">${u.role}</span></td>
             <td class="p-3">Lvl ${u.level}</td>
-            <td class="p-3 text-amber-400 font-bold">Rp ${u.balance.toLocaleString()}</td>
-            <td class="p-3">
-              <button onclick="ownerAddBalance('${u.username}')" class="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[10px] font-bold">
-                + Edit Saldo
+            <td class="p-3 text-amber-400 font-extrabold">Rp ${u.balance.toLocaleString()}</td>
+            <td class="p-3 text-center">
+              <button onclick="ownerModifyBalance('${u.username}')" class="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[10px] font-bold transition">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Saldo
               </button>
             </td>
           </tr>
@@ -609,14 +864,14 @@
       });
     }
 
-    function ownerAddBalance(targetUser) {
-      const amount = prompt(`Masukkan penambahan saldo virtual untuk ${targetUser}:`, "50000");
+    function ownerModifyBalance(targetUser) {
+      const amount = prompt(`Edit Saldo untuk ${targetUser} (Masukkan angka positif/negatif):`, "50000");
       if (!amount || isNaN(amount)) return;
 
-      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      let db = JSON.parse(localStorage.getItem('halsey_users') || '{}');
       if (db[targetUser]) {
-        db[targetUser].balance += parseInt(amount);
-        localStorage.setItem('arcade_users', JSON.stringify(db));
+        db[targetUser].balance = Math.max(0, db[targetUser].balance + parseInt(amount));
+        localStorage.setItem('halsey_users', JSON.stringify(db));
 
         if (currentUser && currentUser.username === targetUser) {
           currentUser.balance = db[targetUser].balance;
@@ -624,7 +879,7 @@
         }
         renderOwnerMemberTable();
         updateNavUser();
-        alert('Saldo berhasil diperbarui oleh Owner!');
+        alert('Saldo member berhasil diperbarui!');
       }
     }
 
@@ -634,107 +889,144 @@
       saveSession();
       renderProfileTab();
       updateNavUser();
-      alert('Berhasil refill Rp 25.000 saldo virtual gratis!');
+      alert('Bonus refill saldo virtual Rp 25.000 berhasil ditambahkan!');
     }
 
-    // --- GAMEPLAY ENGINE WITH OWNER WIN-RATE ALGORITHM ---
-    function adjustBet(delta) {
-      currentBet = Math.max(500, currentBet + delta);
-      document.getElementById('bet-amount').innerText = currentBet.toLocaleString();
+    // --- FLEXIBLE BET INPUT LOGIC ---
+    function validateAndSetBet(val) {
+      let num = parseInt(val) || 0;
+      currentBet = num;
     }
-    function setMaxBet() {
-      if (currentUser) currentBet = Math.min(currentUser.balance, 50000);
-      document.getElementById('bet-amount').innerText = currentBet.toLocaleString();
+
+    function quickBet(type) {
+      if (!currentUser) return;
+      const input = document.getElementById('input-bet-amount');
+      
+      if (type === 'min') currentBet = 100;
+      else if (type === 'half') currentBet = Math.max(100, Math.floor(currentBet / 2));
+      else if (type === 'double') currentBet = Math.min(currentUser.balance, currentBet * 2);
+      else if (type === 'add1k') currentBet += 1000;
+      else if (type === 'add5k') currentBet += 5000;
+      else if (type === 'max') currentBet = Math.max(100, currentUser.balance);
+
+      input.value = currentBet;
     }
 
     function renderPaytable() {
       const items = [
         { name: '3 Simbol Sama (Jackpot)', mult: 'x10 Bet' },
         { name: '2 Simbol Sama (Mini Win)', mult: 'x2 Bet' },
-        { name: 'EXP per Spin', mult: '+15 EXP' }
+        { name: 'Bonus Level Up', mult: '+Rp 10.000' },
+        { name: 'EXP Spin', mult: '+15 EXP' }
       ];
       document.getElementById('paytable-list').innerHTML = items.map(i => `
-        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
           <p class="text-slate-400 font-semibold">${i.name}</p>
-          <p class="text-amber-400 font-bold">${i.mult}</p>
+          <p class="text-amber-400 font-black mt-0.5">${i.mult}</p>
         </div>
       `).join('');
     }
 
+    // --- MAIN SPIN EXECUTION ENGINE ---
     function executeSpin() {
       if (!currentUser) {
         openAuthModal();
         return;
       }
-      if (currentUser.balance < currentBet) {
-        alert('Saldo virtual tidak cukup! Silakan refill di menu Profil.');
+
+      const inputBet = parseInt(document.getElementById('input-bet-amount').value) || 0;
+      if (inputBet < 100) {
+        alert('Taruhan minimal adalah Rp 100!');
+        return;
+      }
+      if (currentUser.balance < inputBet) {
+        alert('Saldo virtual kamu tidak mencukupi! Silakan kurangi taruhan atau refill di menu Profile.');
         return;
       }
 
-      // Potong Saldo
+      currentBet = inputBet;
+
+      // Deduct Balance
       currentUser.balance -= currentBet;
       saveSession();
       updateNavUser();
 
       const btnSpin = document.getElementById('btn-spin');
       btnSpin.disabled = true;
-      document.getElementById('slot-status').innerText = 'Memutar gulungan...';
+      document.getElementById('slot-status').innerText = 'Gulungan sedang berputar...';
+      document.getElementById('win-line').classList.add('hidden');
 
-      // ALGORITMA PENENTUAN KEMENANGAN BERDASARKAN WIN RATE OWNER
-      const activeWR = parseInt(localStorage.getItem('arcade_winrate') || 50);
-      const randVal = Math.random() * 100;
-      const isJackpotAttempt = randVal < activeWR; // Jika acak < WinRate, dipaksa Menang
+      // REAL RTP MATH ALGORITHM
+      // Roll 0 - 100. Jika Roll < globalWinRate -> WIN, Else -> LOSS
+      const roll = Math.random() * 100;
+      const isWinAttempt = roll < globalWinRate;
 
       const syms = activeGame ? activeGame.symbols : ['⚡','👑','💎','🔱'];
       let res1, res2, res3;
 
-      if (isJackpotAttempt) {
-        // Dipastikan Menang (Simbol Sama)
+      if (isWinAttempt) {
+        // High Chance 3 Matching or 2 Matching
+        const isFullJackpot = Math.random() < 0.35; // 35% of wins are 3x match
         const chosen = syms[Math.floor(Math.random() * syms.length)];
-        res1 = chosen; res2 = chosen; res3 = chosen;
+        
+        if (isFullJackpot) {
+          res1 = chosen; res2 = chosen; res3 = chosen;
+        } else {
+          // 2 Match
+          res1 = chosen; res2 = chosen;
+          let other = syms[Math.floor(Math.random() * syms.length)];
+          while (other === chosen) other = syms[Math.floor(Math.random() * syms.length)];
+          res3 = other;
+        }
       } else {
-        // Dipastikan Acak / Berjarak (Rungkad)
-        res1 = syms[Math.floor(Math.random() * syms.length)];
-        res2 = syms[Math.floor(Math.random() * syms.length)];
-        res3 = syms[Math.floor(Math.random() * syms.length)];
+        // Force Loss (All different)
+        res1 = syms[0];
+        res2 = syms[1];
+        res3 = syms[2];
       }
 
-      // Animasi Spin Realistis
+      // Reel Spin Visual Animation
       const r1 = document.getElementById('reel-1');
       const r2 = document.getElementById('reel-2');
       const r3 = document.getElementById('reel-3');
 
-      r1.classList.add('blur-spin');
-      r2.classList.add('blur-spin');
-      r3.classList.add('blur-spin');
+      r1.classList.add('reel-blur');
+      r2.classList.add('reel-blur');
+      r3.classList.add('reel-blur');
+
+      playSpinSound();
 
       setTimeout(() => {
         r1.innerHTML = `<div>${res1}</div><div>${res1}</div><div>${res1}</div>`;
-        r1.classList.remove('blur-spin');
-      }, 400);
+        r1.classList.remove('reel-blur');
+        playSpinSound();
+      }, 350);
 
       setTimeout(() => {
         r2.innerHTML = `<div>${res2}</div><div>${res2}</div><div>${res2}</div>`;
-        r2.classList.remove('blur-spin');
-      }, 700);
+        r2.classList.remove('reel-blur');
+        playSpinSound();
+      }, 650);
 
       setTimeout(() => {
         r3.innerHTML = `<div>${res3}</div><div>${res3}</div><div>${res3}</div>`;
-        r3.classList.remove('blur-spin');
+        r3.classList.remove('reel-blur');
 
-        // CALCULATE WIN RESULT
+        // Finish Spin Calculation
         finishSpinResult(res1, res2, res3);
         btnSpin.disabled = false;
-      }, 1000);
+      }, 950);
     }
 
     function finishSpinResult(s1, s2, s3) {
       let winAmount = 0;
       let statusText = '';
+      let isJackpot = false;
 
       if (s1 === s2 && s2 === s3) {
         winAmount = currentBet * 10;
         statusText = `🎉 JACKPOT 3X MATCH! Menang Rp ${winAmount.toLocaleString()}!`;
+        isJackpot = true;
       } else if (s1 === s2 || s2 === s3 || s1 === s3) {
         winAmount = currentBet * 2;
         statusText = `✨ MINI WIN 2X MATCH! Menang Rp ${winAmount.toLocaleString()}!`;
@@ -744,33 +1036,50 @@
 
       if (winAmount > 0) {
         currentUser.balance += winAmount;
+        document.getElementById('win-line').classList.remove('hidden');
+        playWinSound(isJackpot);
+
+        if (isJackpot) {
+          triggerConfetti();
+          showWinOverlay(winAmount);
+        }
       }
 
-      // TAMBAH EXP & CHECK LEVEL UP
+      // EXP & LEVEL PROGRESSION
       currentUser.exp += 15;
       const expNeeded = currentUser.level * 100;
       if (currentUser.exp >= expNeeded) {
         currentUser.level += 1;
         currentUser.exp = 0;
-        currentUser.balance += 10000; // Level up bonus
-        alert(`🌟 LEVEL UP! Selamat naik ke Level ${currentUser.level}! Bonus Saldo +Rp 10.000`);
+        currentUser.balance += 10000;
+        alert(`🌟 LEVEL UP! Selamat Kamu Naik ke Level ${currentUser.level}! Bonus Saldo +Rp 10.000`);
       }
 
       saveSession();
       updateNavUser();
       document.getElementById('slot-status').innerText = statusText;
 
-      // Add History
+      // Add To History
       const hist = document.getElementById('spin-history');
+      if (hist.querySelector('p')) hist.innerHTML = '';
+      
       const item = document.createElement('div');
-      item.className = "flex justify-between items-center bg-slate-950 p-2 rounded-lg border border-slate-800";
+      item.className = "flex justify-between items-center bg-slate-950 p-2.5 rounded-xl border border-slate-800";
       item.innerHTML = `
-        <span>${s1} ${s2} ${s3}</span>
-        <span class="${winAmount > 0 ? 'text-emerald-400' : 'text-red-400'} font-bold">
+        <span class="font-bold text-slate-300">${s1} ${s2} ${s3}</span>
+        <span class="${winAmount > 0 ? 'text-emerald-400' : 'text-red-400'} font-black">
           ${winAmount > 0 ? '+Rp ' + winAmount.toLocaleString() : '-Rp ' + currentBet.toLocaleString()}
         </span>
       `;
       hist.prepend(item);
+    }
+
+    function showWinOverlay(amt) {
+      document.getElementById('win-overlay-amount').innerText = '+Rp ' + amt.toLocaleString();
+      document.getElementById('big-win-overlay').classList.remove('hidden');
+    }
+    function closeWinOverlay() {
+      document.getElementById('big-win-overlay').classList.add('hidden');
     }
 
     function toggleAutoSpin() {
@@ -780,16 +1089,35 @@
         stateEl.innerText = 'ON';
         stateEl.className = 'text-emerald-400 font-bold';
         autoSpinInterval = setInterval(() => {
+          // Cek jika sedang berada di tab game, jika tidak matikan autospin
+          if (document.getElementById('tab-game').classList.contains('hidden')) {
+            stopAutoSpin();
+            return;
+          }
           if (!document.getElementById('btn-spin').disabled) {
             executeSpin();
           }
-        }, 1800);
+        }, 1600);
       } else {
-        stateEl.innerText = 'OFF';
-        stateEl.className = 'text-red-400 font-bold';
-        clearInterval(autoSpinInterval);
+        stopAutoSpin();
+      }
+    }
+
+    // --- CONFETTI PARTICLE EFFECT ---
+    function triggerConfetti() {
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.backgroundColor = ['#facc15', '#eab308', '#a855f7', '#22c55e', '#3b82f6'][Math.floor(Math.random()*5)];
+        p.style.width = Math.random() * 8 + 6 + 'px';
+        p.style.height = p.style.width;
+        p.style.borderRadius = '50%';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 2500);
       }
     }
   </script>
 </body>
 </html>
+```

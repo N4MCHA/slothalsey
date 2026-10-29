@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ArcadeSlot - Web Slot Simulation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #0b0e14;
+      color: #e2e8f0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .neon-text-gold {
+      text-shadow: 0 0 10px rgba(234, 179, 8, 0.5), 0 0 20px rgba(234, 179, 8, 0.3);
+    }
+    .neon-text-purple {
+      text-shadow: 0 0 10px rgba(168, 85, 247, 0.5), 0 0 20px rgba(168, 85, 247, 0.3);
+    }
+    .reel-container {
+      perspective: 1000px;
+    }
+    .reel-strip {
+      transition: transform 0.1s ease-out;
+    }
+    .blur-spin {
+      filter: blur(4px);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between pb-16 md:pb-0">
+
+  <!-- NAVBAR -->
+  <nav class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
+          <i class="fa-solid fa-gem text-slate-950 text-xl"></i>
+        </div>
+        <span class="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500">
+          ARCADE<span class="text-purple-400">SLOT</span>
+        </span>
+      </div>
+
+      <!-- User Status Header -->
+      <div id="nav-user-info" class="flex items-center gap-3">
+        <!-- Will be populated dynamically -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+
+    <!-- TAB: HOME / CATALOG -->
+    <section id="tab-home" class="space-y-6">
+      <!-- Banner Hero -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-900/80 via-slate-900 to-amber-950/60 border border-purple-500/20 p-6 md:p-10 shadow-2xl">
+        <div class="relative z-10 max-w-xl space-y-4">
+          <span class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-full uppercase tracking-widest">
+            Simulasi Koin Virtual 100% Gratis
+          </span>
+          <h1 class="text-3xl md:text-5xl font-black text-white leading-tight">
+            Rasakan Sensasi Jackpot <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-200">Tanpa Risiko</span>
+          </h1>
+          <p class="text-slate-400 text-sm md:text-base">
+            Mainkan 20+ variasi slot arcade favorit dengan animasi mulus, grafik keren, dan naikkan level akunmu sampai Server Owner!
+          </p>
+        </div>
+        <div class="absolute -right-10 -bottom-10 opacity-20 md:opacity-40 pointer-events-none">
+          <i class="fa-solid fa-dice-five text-[220px] text-amber-400"></i>
+        </div>
+      </div>
+
+      <!-- Kategori Filter & Search -->
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+          <i class="fa-solid fa-fire text-amber-500"></i> Game Populer Hari Ini
+        </h2>
+        <div class="relative w-full sm:w-64">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+          <input type="text" id="search-game" oninput="filterGames()" placeholder="Cari nama game..." class="w-full bg-slate-800/80 border border-slate-700/80 text-sm rounded-xl pl-9 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
+        </div>
+      </div>
+
+      <!-- Grid Game (20 Games) -->
+      <div id="game-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <!-- Generated by JS -->
+      </div>
+    </section>
+
+    <!-- TAB: GAMEPLAY SLOT -->
+    <section id="tab-game" class="hidden space-y-6">
+      <div class="flex justify-between items-center">
+        <button onclick="switchTab('home')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold flex items-center gap-2 border border-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke Katalog
+        </button>
+        <div class="text-right">
+          <h3 id="current-game-title" class="text-lg font-bold text-amber-400">Olympus Zeus</h3>
+          <p class="text-xs text-slate-400">RTP Rate: <span id="game-rtp-display" class="text-emerald-400 font-bold">96.5%</span></p>
+        </div>
+      </div>
+
+      <!-- SLOT MACHINE CANVAS / CONTAINER -->
+      <div class="max-w-2xl mx-auto bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl border-2 border-amber-500/40 p-4 sm:p-6 shadow-2xl relative overflow-hidden">
+        <!-- Frame Glow -->
+        <div class="absolute inset-0 bg-amber-500/5 pointer-events-none"></div>
+
+        <!-- Reel Viewport (3x3 Grid) -->
+        <div class="bg-slate-950 border-4 border-amber-500/30 rounded-2xl p-3 grid grid-cols-3 gap-2 relative shadow-inner">
+          
+          <!-- Reel Column 1 -->
+          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
+            <div id="reel-1" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
+              <div>⚡</div><div>👑</div><div>💎</div>
+            </div>
+          </div>
+
+          <!-- Reel Column 2 -->
+          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
+            <div id="reel-2" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
+              <div>⚡</div><div>👑</div><div>💎</div>
+            </div>
+          </div>
+
+          <!-- Reel Column 3 -->
+          <div class="bg-slate-900/90 rounded-xl overflow-hidden h-64 sm:h-72 border border-slate-800 flex flex-col justify-around items-center reel-container relative">
+            <div id="reel-3" class="reel-strip flex flex-col items-center justify-around w-full h-full text-5xl sm:text-6xl py-2">
+              <div>⚡</div><div>👑</div><div>💎</div>
+            </div>
+          </div>
+
+          <!-- Win Line Overlay -->
+          <div id="win-line" class="hidden absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-amber-400 shadow-[0_0_15px_#f59e0b] z-20"></div>
+        </div>
+
+        <!-- Notification Banner -->
+        <div id="slot-status" class="mt-4 text-center py-2 px-4 bg-slate-800/80 border border-slate-700/60 rounded-xl text-sm font-semibold text-slate-300 min-h-[40px] flex items-center justify-center">
+          Tekan SPIN untuk memulai taruhan virtual!
+        </div>
+
+        <!-- Control Deck -->
+        <div class="mt-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <!-- Bet Amount Selector -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-400 uppercase">Taruhan:</span>
+              <button onclick="adjustBet(-500)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700">-</button>
+              <span id="bet-amount" class="text-sm font-black text-amber-400 min-w-[70px] text-center">1,000</span>
+              <button onclick="adjustBet(500)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700">+</button>
+              <button onclick="setMaxBet()" class="px-2 py-1 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 border border-purple-500/40 text-xs rounded-lg font-semibold">MAX</button>
+            </div>
+
+            <!-- Auto Spin Toggle -->
+            <div class="flex items-center gap-2">
+              <button id="btn-autospin" onclick="toggleAutoSpin()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-rotate"></i> Auto Spin: <span id="autospin-state" class="text-red-400">OFF</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Main Spin Button -->
+          <button id="btn-spin" onclick="executeSpin()" class="w-full py-4 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-lg rounded-2xl shadow-lg shadow-amber-500/25 active:scale-[0.98] transition uppercase tracking-wider flex items-center justify-center gap-2">
+            <i class="fa-solid fa-play"></i> PUTAR SEKARANG
+          </button>
+        </div>
+      </div>
+
+      <!-- History & Paytable Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <!-- Paytable -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
+          <h4 class="font-bold text-amber-400 text-sm mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-table-list"></i> Tabel Kelipatan Hadiah (Paytable)
+          </h4>
+          <div id="paytable-list" class="grid grid-cols-2 gap-2 text-xs">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- History Spin -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
+          <h4 class="font-bold text-amber-400 text-sm mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left"></i> Riwayat Putaran
+          </h4>
+          <div id="spin-history" class="space-y-2 max-h-48 overflow-y-auto text-xs pr-1">
+            <p class="text-slate-500 italic text-center py-4">Belum ada riwayat putaran.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: PROFILE & OWNER DASHBOARD -->
+    <section id="tab-profile" class="hidden space-y-6">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row items-center gap-6">
+          <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-3xl font-black text-white shadow-lg shadow-purple-500/30">
+            <span id="profile-avatar-initial">U</span>
+          </div>
+
+          <div class="space-y-2 text-center md:text-left flex-grow">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center md:justify-start">
+              <h2 id="profile-username" class="text-2xl font-black text-white">Guest User</h2>
+              <span id="profile-role-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 w-fit mx-auto md:mx-0">
+                Member
+              </span>
+            </div>
+
+            <!-- EXP Level Progress Bar -->
+            <div class="max-w-md space-y-1">
+              <div class="flex justify-between text-xs font-semibold">
+                <span id="profile-level-text" class="text-amber-400">Level 1</span>
+                <span id="profile-exp-text" class="text-slate-400">0 / 100 EXP</span>
+              </div>
+              <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700/80 p-0.5">
+                <div id="profile-exp-bar" class="bg-gradient-to-r from-amber-500 to-yellow-300 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center min-w-[180px]">
+            <p class="text-xs text-slate-400 uppercase font-semibold">Saldo Virtual</p>
+            <p id="profile-balance" class="text-2xl font-black text-amber-400 mt-1">Rp 0</p>
+            <button onclick="refillVirtualBalance()" class="mt-3 w-full py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs rounded-xl font-bold transition">
+              <i class="fa-solid fa-arrows-rotate"></i> Refill Saldo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OWNER DASHBOARD (ONLY VISIBLE TO OWNER/ADMIN) -->
+      <div id="owner-dashboard" class="hidden bg-slate-900/90 border-2 border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h3 class="text-xl font-black text-purple-400 flex items-center gap-2">
+              <i class="fa-solid fa-user-gear"></i> Owner Control Panel
+            </h3>
+            <p class="text-xs text-slate-400">Kelola member, atur win rate, dan top-up saldo secara real-time.</p>
+          </div>
+          <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 rounded-full text-xs font-bold">
+            Cloud Mode: Active
+          </span>
+        </div>
+
+        <!-- SETTING WIN RATE / RTP GLOBAL -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-amber-400 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-sliders"></i> Pengaturan Presentase Kemenangan (RTP Global)
+            </h4>
+            <span id="winrate-slider-val" class="text-lg font-black text-emerald-400">50%</span>
+          </div>
+          <p class="text-xs text-slate-400">
+            Geser slider di bawah ini untuk mengatur seberapa mudah/sering member mendapatkan jackpot di semua game.
+          </p>
+          <div class="flex items-center gap-4">
+            <span class="text-xs font-bold text-red-400">10% (Sulit)</span>
+            <input type="range" id="winrate-range" min="10" max="90" value="50" oninput="updateWinRateSetting(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+            <span class="text-xs font-bold text-emerald-400">90% (Gacor)</span>
+          </div>
+        </div>
+
+        <!-- MEMBER MANAGEMENT TABLE -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-slate-200 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-users"></i> Daftar Riwayat Member & Saldo
+          </h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-950 text-slate-400 uppercase font-bold border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Username</th>
+                  <th class="p-3">Level</th>
+                  <th class="p-3">Saldo</th>
+                  <th class="p-3">Aksi Owner</th>
+                </tr>
+              </thead>
+              <tbody id="owner-member-table-body" class="divide-y divide-slate-800/60">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM MOBILE NAVIGATION BAR -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 z-40 px-6 py-2 flex justify-around items-center">
+    <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 text-xs font-semibold text-amber-400">
+      <i class="fa-solid fa-house text-lg"></i> Home
+    </button>
+    <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-xs font-semibold text-slate-400 hover:text-amber-400">
+      <i class="fa-solid fa-user text-lg"></i> Profil
+    </button>
+  </nav>
+
+  <!-- MODAL AUTH (LOGIN / REGISTER) -->
+  <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl relative">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+
+      <div class="text-center space-y-1">
+        <h3 class="text-2xl font-black text-white">Akses Akun ArcadeSlot</h3>
+        <p class="text-xs text-slate-400">Login terlebih dahulu untuk bermain dan menyimpan saldo virtualmu!</p>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-bold text-slate-400">Username</label>
+          <input type="text" id="auth-username" placeholder="Masukkan username..." class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-400">Password</label>
+          <input type="password" id="auth-password" placeholder="Masukkan password..." class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="handleLogin()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-sm transition">
+          LOGIN
+        </button>
+        <button onclick="handleRegister()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-sm border border-slate-700 transition">
+          DAFTAR
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // --- 1. FIREBASE INITIALIZATION (Ganti config jika punya sendiri) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDummyKeyForArcadeSlotSim2026",
+      authDomain: "arcadeslot-sim.firebaseapp.com",
+      databaseURL: "https://arcadeslot-sim-default-rtdb.firebaseio.com",
+      projectId: "arcadeslot-sim",
+      storageBucket: "arcadeslot-sim.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:dummyappid"
+    };
+
+    // Fallback Mock Local Data jika Firebase Key tidak diisi secara live
+    let isFirebaseActive = false;
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      isFirebaseActive = true;
+    } catch (e) {
+      console.warn("Firebase tidak terkonfigurasi, berjalan pada Local Engine Mode.");
+    }
+
+    // --- DATABASE STATE ---
+    let currentUser = null;
+    let globalWinRate = 50; // Default 50%
+    let currentBet = 1000;
+    let isAutoSpin = false;
+    let autoSpinInterval = null;
+    let activeGame = null;
+
+    // --- 20 LIST GAME SLOT ---
+    const GAMES_DATA = [
+      { id: 1, title: 'Olympus Zeus', icon: '⚡', symbols: ['⚡','👑','💎','🔱','🏛️','🛡️'] },
+      { id: 2, title: 'Sweet Bonanza', icon: '🍬', symbols: ['🍬','🍭','🍇','🍉','🍎','🍌'] },
+      { id: 3, title: 'Cyber Neon 2077', icon: '🤖', symbols: ['🤖','⚡','🔮','🌌','🎮','💾'] },
+      { id: 4, title: 'Pharaoh Gold', icon: '🇪🇬', symbols: ['🇪🇬','📜','🪲','🏺','👑','👁️'] },
+      { id: 5, title: 'Dragon Legend', icon: '🐉', symbols: ['🐉','🔥','🥠','🗡️','🛡️','🧧'] },
+      { id: 6, title: 'Gacor 777 Wild', icon: '🎰', symbols: ['7️⃣','🔔','🍒','🍋','💎','⭐'] },
+      { id: 7, title: 'Pirate Treasure', icon: '🏴‍☠️', symbols: ['🏴‍☠️','⚓','🦜','💣','🗺️','🪙'] },
+      { id: 8, title: 'Fruit Mania', icon: '🍓', symbols: ['🍓','🍍','🍊','🍇','🍒','🥝'] },
+      { id: 9, title: 'Space Galaxy', icon: '🚀', symbols: ['🚀','🪐','⭐','🛸','👾','☄️'] },
+      { id: 10, title: 'Lucky Leprechaun', icon: '🍀', symbols: ['🍀','🎩','🌈','🍺','🪙','🎻'] },
+      { id: 11, title: 'Ninja Shadow', icon: '🥷', symbols: ['🥷','🗡️','🌀','📜','🏯','🔥'] },
+      { id: 12, title: 'Wild Safari', icon: '🦁', symbols: ['🦁','🐘','🦒','🦓','🌴','🍖'] },
+      { id: 13, title: 'Ocean Deep', icon: '🪼', symbols: ['🪼','🦈','🐙','🐚','🪸','⚓'] },
+      { id: 14, title: 'Vampire Night', icon: '🦇', symbols: ['🦇','🏰','🍷','🕯️','🗡️','🌙'] },
+      { id: 15, title: 'Candy Party', icon: '🧁', symbols: ['🧁','🍩','🍪','🍨','🍫','🍬'] },
+      { id: 16, title: 'Mahjong Ways', icon: '🀄', symbols: ['🀄','🏮','🥠','🐉','🪙','🎋'] },
+      { id: 17, title: 'Ancient Aztec', icon: '🗿', symbols: ['🗿','🏺','🌿','🐍','☀️','💎'] },
+      { id: 18, title: 'Viking Conquest', icon: '🛡️', symbols: ['🛡️','🪓','⛵','⚡','🍺','🐺'] },
+      { id: 19, title: 'Samba Carnival', icon: '🎭', symbols: ['🎭','🥁','🪶','🎺','💃','🎉'] },
+      { id: 20, title: 'Retro Arcade', icon: '👾', symbols: ['👾','🕹️','🎮','👾','⭐','🚀'] }
+    ];
+
+    // INITIAL SETUP
+    window.addEventListener('DOMContentLoaded', () => {
+      renderGameGrid(GAMES_DATA);
+      loadSavedSession();
+      renderPaytable();
+    });
+
+    // --- TAB SWITCHING ---
+    function switchTab(tab) {
+      document.getElementById('tab-home').classList.add('hidden');
+      document.getElementById('tab-game').classList.add('hidden');
+      document.getElementById('tab-profile').classList.add('hidden');
+
+      if (tab === 'home') document.getElementById('tab-home').classList.remove('hidden');
+      if (tab === 'game') document.getElementById('tab-game').classList.remove('hidden');
+      if (tab === 'profile') {
+        document.getElementById('tab-profile').classList.remove('hidden');
+        renderProfileTab();
+      }
+    }
+
+    // --- RENDER GAME GRID ---
+    function renderGameGrid(games) {
+      const grid = document.getElementById('game-grid');
+      grid.innerHTML = games.map(g => `
+        <div onclick="openGame(${g.id})" class="bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer group transition duration-300 transform hover:-translate-y-1">
+          <div class="w-16 h-16 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-4xl group-hover:scale-110 transition">
+            ${g.icon}
+          </div>
+          <div class="text-center">
+            <h4 class="font-bold text-sm text-slate-200 group-hover:text-amber-400">${g.title}</h4>
+            <span class="text-[10px] text-emerald-400 font-semibold">RTP Live 97.2%</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterGames() {
+      const q = document.getElementById('search-game').value.toLowerCase();
+      const filtered = GAMES_DATA.filter(g => g.title.toLowerCase().includes(q));
+      renderGameGrid(filtered);
+    }
+
+    // --- OPEN GAME CHECK LOGIN ---
+    function openGame(gameId) {
+      if (!currentUser) {
+        openAuthModal();
+        return;
+      }
+      activeGame = GAMES_DATA.find(g => g.id === gameId);
+      document.getElementById('current-game-title').innerText = activeGame.title;
+      switchTab('game');
+    }
+
+    // --- AUTHENTICATION ENGINE ---
+    function openAuthModal() {
+      document.getElementById('modal-auth').classList.remove('hidden');
+    }
+    function closeAuthModal() {
+      document.getElementById('modal-auth').classList.add('hidden');
+    }
+
+    function handleLogin() {
+      const userVal = document.getElementById('auth-username').value.trim();
+      const passVal = document.getElementById('auth-password').value.trim();
+
+      if (!userVal || !passVal) return alert('Isi username & password!');
+
+      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      if (db[userVal] && db[userVal].password === passVal) {
+        currentUser = db[userVal];
+        saveSession();
+        closeAuthModal();
+        updateNavUser();
+        alert('Login Berhasil!');
+      } else {
+        alert('Username atau password salah!');
+      }
+    }
+
+    function handleRegister() {
+      const userVal = document.getElementById('auth-username').value.trim();
+      const passVal = document.getElementById('auth-password').value.trim();
+
+      if (!userVal || !passVal) return alert('Isi username & password!');
+
+      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      if (db[userVal]) return alert('Username sudah terdaftar!');
+
+      const isOwner = (userVal.toLowerCase() === 'halsey' || userVal.toLowerCase() === 'halsey05');
+      
+      currentUser = {
+        username: userVal,
+        password: passVal,
+        balance: 50000,
+        exp: 0,
+        level: 1,
+        role: isOwner ? 'Owner' : 'Member'
+      };
+
+      db[userVal] = currentUser;
+      localStorage.setItem('arcade_users', JSON.stringify(db));
+      saveSession();
+      closeAuthModal();
+      updateNavUser();
+      alert('Pendaftaran Berhasil! Saldo Bonus Virtual Rp 50.000 ditambahkan.');
+    }
+
+    function saveSession() {
+      localStorage.setItem('arcade_session', JSON.stringify(currentUser));
+      // Sync back to db
+      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      if (currentUser) {
+        db[currentUser.username] = currentUser;
+        localStorage.setItem('arcade_users', JSON.stringify(db));
+      }
+    }
+
+    function loadSavedSession() {
+      const sess = localStorage.getItem('arcade_session');
+      if (sess) {
+        currentUser = JSON.parse(sess);
+        updateNavUser();
+      } else {
+        updateNavUser();
+      }
+    }
+
+    function updateNavUser() {
+      const container = document.getElementById('nav-user-info');
+      if (currentUser) {
+        container.innerHTML = `
+          <div onclick="switchTab('profile')" class="cursor-pointer flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700/80">
+            <i class="fa-solid fa-coins text-amber-400 text-xs"></i>
+            <span class="text-xs font-black text-amber-300">Rp ${currentUser.balance.toLocaleString()}</span>
+            <span class="text-xs text-slate-400">| ${currentUser.username}</span>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <button onclick="openAuthModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black rounded-xl transition">
+            LOGIN / DAFTAR
+          </button>
+        `;
+      }
+    }
+
+    // --- OWNER WIN RATE SETTING CONTROL ---
+    function updateWinRateSetting(val) {
+      globalWinRate = parseInt(val);
+      document.getElementById('winrate-slider-val').innerText = globalWinRate + '%';
+      localStorage.setItem('arcade_winrate', globalWinRate);
+    }
+
+    // --- PROFILE & OWNER TAB RENDER ---
+    function renderProfileTab() {
+      if (!currentUser) return;
+      document.getElementById('profile-username').innerText = currentUser.username;
+      document.getElementById('profile-avatar-initial').innerText = currentUser.username[0].toUpperCase();
+      document.getElementById('profile-role-badge').innerText = currentUser.role;
+      document.getElementById('profile-balance').innerText = 'Rp ' + currentUser.balance.toLocaleString();
+
+      // EXP logic
+      const expNeeded = currentUser.level * 100;
+      const expPct = Math.min(100, Math.floor((currentUser.exp / expNeeded) * 100));
+      document.getElementById('profile-level-text').innerText = 'Level ' + currentUser.level;
+      document.getElementById('profile-exp-text').innerText = `${currentUser.exp} / ${expNeeded} EXP`;
+      document.getElementById('profile-exp-bar').style.width = expPct + '%';
+
+      // OWNER PANEL VISIBILITY
+      if (currentUser.role === 'Owner') {
+        document.getElementById('owner-dashboard').classList.remove('hidden');
+        renderOwnerMemberTable();
+        
+        const savedWR = localStorage.getItem('arcade_winrate') || 50;
+        document.getElementById('winrate-range').value = savedWR;
+        document.getElementById('winrate-slider-val').innerText = savedWR + '%';
+      } else {
+        document.getElementById('owner-dashboard').classList.add('hidden');
+      }
+    }
+
+    function renderOwnerMemberTable() {
+      const db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      const tbody = document.getElementById('owner-member-table-body');
+      tbody.innerHTML = '';
+
+      Object.values(db).forEach(u => {
+        tbody.innerHTML += `
+          <tr>
+            <td class="p-3 font-semibold text-slate-200">${u.username} ${u.role === 'Owner' ? '👑' : ''}</td>
+            <td class="p-3">Lvl ${u.level}</td>
+            <td class="p-3 text-amber-400 font-bold">Rp ${u.balance.toLocaleString()}</td>
+            <td class="p-3">
+              <button onclick="ownerAddBalance('${u.username}')" class="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[10px] font-bold">
+                + Edit Saldo
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function ownerAddBalance(targetUser) {
+      const amount = prompt(`Masukkan penambahan saldo virtual untuk ${targetUser}:`, "50000");
+      if (!amount || isNaN(amount)) return;
+
+      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      if (db[targetUser]) {
+        db[targetUser].balance += parseInt(amount);
+        localStorage.setItem('arcade_users', JSON.stringify(db));
+
+        if (currentUser && currentUser.username === targetUser) {
+          currentUser.balance = db[targetUser].balance;
+          saveSession();
+        }
+        renderOwnerMemberTable();
+        updateNavUser();
+        alert('Saldo berhasil diperbarui oleh Owner!');
+      }
+    }
+
+    function refillVirtualBalance() {
+      if (!currentUser) return;
+      currentUser.balance += 25000;
+      saveSession();
+      renderProfileTab();
+      updateNavUser();
+      alert('Berhasil refill Rp 25.000 saldo virtual gratis!');
+    }
+
+    // --- GAMEPLAY ENGINE WITH OWNER WIN-RATE ALGORITHM ---
+    function adjustBet(delta) {
+      currentBet = Math.max(500, currentBet + delta);
+      document.getElementById('bet-amount').innerText = currentBet.toLocaleString();
+    }
+    function setMaxBet() {
+      if (currentUser) currentBet = Math.min(currentUser.balance, 50000);
+      document.getElementById('bet-amount').innerText = currentBet.toLocaleString();
+    }
+
+    function renderPaytable() {
+      const items = [
+        { name: '3 Simbol Sama (Jackpot)', mult: 'x10 Bet' },
+        { name: '2 Simbol Sama (Mini Win)', mult: 'x2 Bet' },
+        { name: 'EXP per Spin', mult: '+15 EXP' }
+      ];
+      document.getElementById('paytable-list').innerHTML = items.map(i => `
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+          <p class="text-slate-400 font-semibold">${i.name}</p>
+          <p class="text-amber-400 font-bold">${i.mult}</p>
+        </div>
+      `).join('');
+    }
+
+    function executeSpin() {
+      if (!currentUser) {
+        openAuthModal();
+        return;
+      }
+      if (currentUser.balance < currentBet) {
+        alert('Saldo virtual tidak cukup! Silakan refill di menu Profil.');
+        return;
+      }
+
+      // Potong Saldo
+      currentUser.balance -= currentBet;
+      saveSession();
+      updateNavUser();
+
+      const btnSpin = document.getElementById('btn-spin');
+      btnSpin.disabled = true;
+      document.getElementById('slot-status').innerText = 'Memutar gulungan...';
+
+      // ALGORITMA PENENTUAN KEMENANGAN BERDASARKAN WIN RATE OWNER
+      const activeWR = parseInt(localStorage.getItem('arcade_winrate') || 50);
+      const randVal = Math.random() * 100;
+      const isJackpotAttempt = randVal < activeWR; // Jika acak < WinRate, dipaksa Menang
+
+      const syms = activeGame ? activeGame.symbols : ['⚡','👑','💎','🔱'];
+      let res1, res2, res3;
+
+      if (isJackpotAttempt) {
+        // Dipastikan Menang (Simbol Sama)
+        const chosen = syms[Math.floor(Math.random() * syms.length)];
+        res1 = chosen; res2 = chosen; res3 = chosen;
+      } else {
+        // Dipastikan Acak / Berjarak (Rungkad)
+        res1 = syms[Math.floor(Math.random() * syms.length)];
+        res2 = syms[Math.floor(Math.random() * syms.length)];
+        res3 = syms[Math.floor(Math.random() * syms.length)];
+      }
+
+      // Animasi Spin Realistis
+      const r1 = document.getElementById('reel-1');
+      const r2 = document.getElementById('reel-2');
+      const r3 = document.getElementById('reel-3');
+
+      r1.classList.add('blur-spin');
+      r2.classList.add('blur-spin');
+      r3.classList.add('blur-spin');
+
+      setTimeout(() => {
+        r1.innerHTML = `<div>${res1}</div><div>${res1}</div><div>${res1}</div>`;
+        r1.classList.remove('blur-spin');
+      }, 400);
+
+      setTimeout(() => {
+        r2.innerHTML = `<div>${res2}</div><div>${res2}</div><div>${res2}</div>`;
+        r2.classList.remove('blur-spin');
+      }, 700);
+
+      setTimeout(() => {
+        r3.innerHTML = `<div>${res3}</div><div>${res3}</div><div>${res3}</div>`;
+        r3.classList.remove('blur-spin');
+
+        // CALCULATE WIN RESULT
+        finishSpinResult(res1, res2, res3);
+        btnSpin.disabled = false;
+      }, 1000);
+    }
+
+    function finishSpinResult(s1, s2, s3) {
+      let winAmount = 0;
+      let statusText = '';
+
+      if (s1 === s2 && s2 === s3) {
+        winAmount = currentBet * 10;
+        statusText = `🎉 JACKPOT 3X MATCH! Menang Rp ${winAmount.toLocaleString()}!`;
+      } else if (s1 === s2 || s2 === s3 || s1 === s3) {
+        winAmount = currentBet * 2;
+        statusText = `✨ MINI WIN 2X MATCH! Menang Rp ${winAmount.toLocaleString()}!`;
+      } else {
+        statusText = `❌ Belum beruntung, coba lagi!`;
+      }
+
+      if (winAmount > 0) {
+        currentUser.balance += winAmount;
+      }
+
+      // TAMBAH EXP & CHECK LEVEL UP
+      currentUser.exp += 15;
+      const expNeeded = currentUser.level * 100;
+      if (currentUser.exp >= expNeeded) {
+        currentUser.level += 1;
+        currentUser.exp = 0;
+        currentUser.balance += 10000; // Level up bonus
+        alert(`🌟 LEVEL UP! Selamat naik ke Level ${currentUser.level}! Bonus Saldo +Rp 10.000`);
+      }
+
+      saveSession();
+      updateNavUser();
+      document.getElementById('slot-status').innerText = statusText;
+
+      // Add History
+      const hist = document.getElementById('spin-history');
+      const item = document.createElement('div');
+      item.className = "flex justify-between items-center bg-slate-950 p-2 rounded-lg border border-slate-800";
+      item.innerHTML = `
+        <span>${s1} ${s2} ${s3}</span>
+        <span class="${winAmount > 0 ? 'text-emerald-400' : 'text-red-400'} font-bold">
+          ${winAmount > 0 ? '+Rp ' + winAmount.toLocaleString() : '-Rp ' + currentBet.toLocaleString()}
+        </span>
+      `;
+      hist.prepend(item);
+    }
+
+    function toggleAutoSpin() {
+      isAutoSpin = !isAutoSpin;
+      const stateEl = document.getElementById('autospin-state');
+      if (isAutoSpin) {
+        stateEl.innerText = 'ON';
+        stateEl.className = 'text-emerald-400 font-bold';
+        autoSpinInterval = setInterval(() => {
+          if (!document.getElementById('btn-spin').disabled) {
+            executeSpin();
+          }
+        }, 1800);
+      } else {
+        stateEl.innerText = 'OFF';
+        stateEl.className = 'text-red-400 font-bold';
+        clearInterval(autoSpinInterval);
+      }
+    }
+  </script>
+</body>
+</html>

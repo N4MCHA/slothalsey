@@ -60,10 +60,10 @@
       100% { transform: translateY(0); }
     }
 
-    /* Floating Notification Bar Animation */
+    /* Floating Notification Bar Animation (Centered Perfectly) */
     #floating-notif-bar {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      transform: translateY(-100px);
+      transform: translateY(-120px);
       opacity: 0;
     }
     #floating-notif-bar.show {
@@ -85,45 +85,45 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 pb-10 relative overflow-x-hidden">
 
-  <!-- FLOATING NOTIFICATION BAR (BAR NOTIFIKASI ATAS) -->
-  <div id="floating-notif-bar" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md bg-slate-900/95 border-2 border-amber-500/50 backdrop-blur-md rounded-2xl p-4 shadow-2xl flex items-center gap-3">
-    <div id="notif-icon-box" class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg flex-shrink-0">
+  <!-- FLOATING NOTIFICATION BAR (FIXED CENTERED ON MOBILE) -->
+  <div id="floating-notif-bar" class="fixed top-4 left-4 right-4 max-w-sm mx-auto z-50 bg-slate-900/95 border-2 border-amber-500/50 backdrop-blur-md rounded-2xl p-3.5 shadow-2xl flex items-center gap-3">
+    <div id="notif-icon-box" class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-base flex-shrink-0">
       <i class="fa-solid fa-bell"></i>
     </div>
-    <div class="flex-grow">
-      <h5 id="notif-title" class="font-black text-xs text-amber-400 uppercase tracking-wider">Halseyslot Notification</h5>
-      <p id="notif-message" class="text-xs text-slate-200 mt-0.5 font-medium">Pesan notifikasi sistem...</p>
+    <div class="flex-grow min-w-0">
+      <h5 id="notif-title" class="font-black text-[11px] text-amber-400 uppercase tracking-wider truncate">Notification</h5>
+      <p id="notif-message" class="text-xs text-slate-200 mt-0.5 font-medium truncate">Pesan sistem...</p>
     </div>
-    <button onclick="hideNotification()" class="text-slate-400 hover:text-white px-2 py-1 text-xs font-bold">
+    <button onclick="hideNotification()" class="text-slate-400 hover:text-white px-2 py-1 text-xs font-bold flex-shrink-0">
       <i class="fa-solid fa-xmark text-sm"></i>
     </button>
   </div>
 
   <!-- NAVBAR -->
-  <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-4 py-3 shadow-lg">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
+  <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-3 sm:px-4 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex justify-between items-center gap-2">
       <!-- Tombol Home Logo -->
-      <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="switchTab('home')">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-          <i class="fa-solid fa-gem text-slate-950 text-xl"></i>
+      <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition flex-shrink-0" onclick="switchTab('home')">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
+          <i class="fa-solid fa-gem text-slate-950 text-lg sm:text-xl"></i>
         </div>
         <div class="flex flex-col">
-          <span class="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 leading-none">
+          <span class="text-base sm:text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 leading-none">
             HALSEY<span class="text-purple-400">SLOT</span>
           </span>
-          <span class="text-[9px] text-slate-400 tracking-widest uppercase">VIP Engine 2.0</span>
+          <span class="text-[8px] sm:text-[9px] text-slate-400 tracking-widest uppercase">VIP Engine 2.0</span>
         </div>
       </div>
 
-      <!-- User Status & Tombol Profil Header -->
-      <div id="nav-user-info" class="flex items-center gap-3">
+      <!-- User Status & Tombol Profil Header (Fully Responsive & Non-buggy) -->
+      <div id="nav-user-info" class="flex items-center gap-2 min-w-0">
         <!-- Dynamic User Status -->
       </div>
     </div>
   </nav>
 
   <!-- MAIN CONTENT CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
+  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-6 flex-grow w-full space-y-6">
 
     <!-- TAB: HOME / CATALOG -->
     <section id="tab-home" class="space-y-6">
@@ -151,9 +151,9 @@
             <i class="fa-solid fa-trophy text-amber-500"></i> Papan Peringkat (Leaderboard)
           </h3>
           <!-- Tab Selector Leaderboard -->
-          <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
-            <button onclick="switchLeaderboardTab('level')" id="btn-lb-level" class="px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition">🏆 Level Tertinggi</button>
-            <button onclick="switchLeaderboardTab('balance')" id="btn-lb-balance" class="px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">💰 Saldo Tertinggi</button>
+          <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs w-full sm:w-auto">
+            <button onclick="switchLeaderboardTab('level')" id="btn-lb-level" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition">🏆 Level</button>
+            <button onclick="switchLeaderboardTab('balance')" id="btn-lb-balance" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">💰 Saldo</button>
           </div>
         </div>
 
@@ -426,13 +426,13 @@
       msgEl.innerText = message;
 
       if (type === 'success') {
-        iconBox.className = "w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg flex-shrink-0";
+        iconBox.className = "w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-base flex-shrink-0";
         iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
       } else if (type === 'jackpot') {
-        iconBox.className = "w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg flex-shrink-0";
+        iconBox.className = "w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-base flex-shrink-0";
         iconBox.innerHTML = '<i class="fa-solid fa-trophy"></i>';
       } else {
-        iconBox.className = "w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-lg flex-shrink-0";
+        iconBox.className = "w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-base flex-shrink-0";
         iconBox.innerHTML = '<i class="fa-solid fa-bell"></i>';
       }
 
@@ -448,7 +448,7 @@
       bar.classList.remove('show');
     }
 
-    // WEB AUDIO SOUND GENERATOR (VOLUME KERAS)
+    // WEB AUDIO SOUND GENERATOR
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
@@ -548,11 +548,11 @@
       const btnBalance = document.getElementById('btn-lb-balance');
 
       if (type === 'level') {
-        btnLevel.className = "px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition";
-        btnBalance.className = "px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
+        btnLevel.className = "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition";
+        btnBalance.className = "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
       } else {
-        btnBalance.className = "px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition";
-        btnLevel.className = "px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
+        btnBalance.className = "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition";
+        btnLevel.className = "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
       }
       renderLeaderboard();
     }
@@ -710,15 +710,15 @@
       const container = document.getElementById('nav-user-info');
       if (currentUser) {
         container.innerHTML = `
-          <div onclick="switchTab('profile')" class="cursor-pointer flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-700 transition">
-            <i class="fa-solid fa-coins text-amber-400 text-xs"></i>
-            <span class="text-xs font-black text-amber-300">Rp ${currentUser.balance.toLocaleString()}</span>
-            <span class="text-xs text-slate-400">| ${currentUser.username} 👤</span>
+          <div onclick="switchTab('profile')" class="cursor-pointer flex items-center gap-1.5 sm:gap-2 bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-700 transition min-w-0">
+            <i class="fa-solid fa-coins text-amber-400 text-xs flex-shrink-0"></i>
+            <span class="text-[11px] sm:text-xs font-black text-amber-300 truncate">Rp ${currentUser.balance.toLocaleString()}</span>
+            <span class="text-[11px] sm:text-xs text-slate-400 truncate max-w-[80px] sm:max-w-[120px]">| ${currentUser.username} 👤</span>
           </div>
         `;
       } else {
         container.innerHTML = `
-          <button onclick="openAuthModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black rounded-xl transition">
+          <button onclick="openAuthModal()" class="px-3 sm:px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black rounded-xl transition whitespace-nowrap">
             LOGIN / DAFTAR
           </button>
         `;

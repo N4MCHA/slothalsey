@@ -418,12 +418,31 @@
   <!-- JAVASCRIPT ENGINE -->
   <script>
     let currentUser = null;
-    let globalWinRate = parseInt(localStorage.getItem('arcade_winrate')) || 80;
+    let globalWinRate = 80;
     let isAutoSpin = false;
     let autoSpinInterval = null;
     let activeGame = null;
     let currentLeaderboardTab = 'level';
     let notifTimeout = null;
+
+    // MASTER DATABASE INITIALIZER (Sinkronisasi Universal & RTP Global)
+    function initDatabase() {
+      const storedRtp = localStorage.getItem('arcade_winrate');
+      if (storedRtp !== null) {
+        globalWinRate = parseInt(storedRtp);
+      } else {
+        localStorage.setItem('arcade_winrate', '80');
+        globalWinRate = 80;
+      }
+
+      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      if (Object.keys(db).length === 0) {
+        db = {
+          "halsey": { username: "halsey", password: "123", balance: 1187301200, exp: 825, level: 6, role: "Owner" }
+        };
+        localStorage.setItem('arcade_users', JSON.stringify(db));
+      }
+    }
 
     function showNotification(title, message, type = 'info') {
       const bar = document.getElementById('floating-notif-bar');
@@ -521,6 +540,7 @@
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
+      initDatabase();
       activeGame = GAMES_DATA[0];
       renderGameGrid(GAMES_DATA);
       loadSavedSession();
@@ -590,14 +610,15 @@
     }
 
     function renderLeaderboard() {
+      initDatabase();
       let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
-      let usersArr = Object.values(db);
-
+      
       if (currentUser && !db[currentUser.username]) {
         db[currentUser.username] = currentUser;
         localStorage.setItem('arcade_users', JSON.stringify(db));
-        usersArr = Object.values(db);
       }
+
+      let usersArr = Object.values(db);
 
       if (currentLeaderboardTab === 'level') {
         usersArr.sort((a, b) => b.level - a.level || b.exp - a.exp);
@@ -640,6 +661,9 @@
     }
 
     function renderGameGrid(games) {
+      const liveRtp = localStorage.getItem('arcade_winrate');
+      if (liveRtp !== null) globalWinRate = parseInt(liveRtp);
+
       const grid = document.getElementById('game-grid');
       grid.innerHTML = games.map(g => `
         <div onclick="openGame(${g.id})" class="bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer group transition duration-300">
@@ -682,6 +706,7 @@
         saveSession();
         closeAuthModal();
         updateNavUser();
+        renderLeaderboard();
         showNotification('Login Berhasil!', `Selamat datang kembali, ${currentUser.username}!`, 'success');
       } else {
         alert('Username atau password salah!');
@@ -723,6 +748,7 @@
       localStorage.removeItem('arcade_session');
       updateNavUser();
       switchTab('home');
+      renderLeaderboard();
       showNotification('Logout', 'Berhasil keluar dari akun.', 'info');
     }
 
@@ -740,7 +766,9 @@
       if (sess) {
         currentUser = JSON.parse(sess);
         let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
-        if (currentUser && !db[currentUser.username]) {
+        if (currentUser && db[currentUser.username]) {
+          currentUser = db[currentUser.username];
+        } else if (currentUser && !db[currentUser.username]) {
           db[currentUser.username] = currentUser;
           localStorage.setItem('arcade_users', JSON.stringify(db));
         }
@@ -771,12 +799,19 @@
 
     function updateWinRateSetting(val) {
       globalWinRate = parseInt(val);
-      localStorage.setItem('arcade_winrate', globalWinRate);
+      localStorage.setItem('arcade_winrate', globalWinRate.toString());
       updateRtpDisplays();
     }
 
     function updateRtpDisplays() {
+      const currentStoredRtp = localStorage.getItem('arcade_winrate');
+      if (currentStoredRtp !== null) {
+        globalWinRate = parseInt(currentStoredRtp);
+      }
       const formatted = globalWinRate + '%';
+      const sliderEl = document.getElementById('winrate-range');
+      if (sliderEl) sliderEl.value = globalWinRate;
+
       document.getElementById('winrate-slider-val').innerText = formatted;
       document.getElementById('home-live-rtp-val').innerText = formatted;
       document.getElementById('game-rtp-display').innerText = formatted;
@@ -812,7 +847,10 @@
       if (currentUser.role === 'Owner') {
         document.getElementById('owner-dashboard').classList.remove('hidden');
         renderOwnerMemberTable();
+        const storedRtp = localStorage.getItem('arcade_winrate');
+        if (storedRtp !== null) globalWinRate = parseInt(storedRtp);
         document.getElementById('winrate-range').value = globalWinRate;
+        document.getElementById('winrate-slider-val').innerText = globalWinRate + '%';
       } else {
         document.getElementById('owner-dashboard').classList.add('hidden');
       }
@@ -862,7 +900,6 @@
     function refillVirtualBalance() {
       if (!currentUser) return;
       
-      // REFILL HANYA UNTUK OWNER, MEMBER DIBERI PESAN LEDEKAN
       if (currentUser.role !== 'Owner') {
         showNotification('Gagal Refill!', 'Beli dong 😝', 'jackpot');
         return;
@@ -920,9 +957,12 @@
       `).join('');
     }
 
-    // SLOTS SPIN ANIMATION & REALISTIC RTP MATH ENGINE
+    // STRICT & REALISTIC SLOT ENGINE (Menyesuaikan persentase RTP Master secara ketat)
     function executeSpin() {
       if (!currentUser) return openAuthModal();
+
+      const liveRtp = localStorage.getItem('arcade_winrate');
+      if (liveRtp !== null) globalWinRate = parseInt(liveRtp);
 
       let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
       if (db[currentUser.username]) {
@@ -953,9 +993,13 @@
       btnSpin.disabled = true;
       document.getElementById('slot-status').innerText = 'Memutar...';
 
+      // LOGIKA KETAT RTP: Jika RTP disetel 10%, peluang jackpot (3x match) hanya 3% dan mini win 4%
+      const jackpotThreshold = globalWinRate * 0.35; 
+      const miniWinThreshold = globalWinRate;
+
       const randVal = Math.random() * 100;
-      const isJackpotAttempt = randVal < globalWinRate;
-      const isMiniWinAttempt = randVal < (globalWinRate + (100 - globalWinRate) * 0.3);
+      const isJackpotAttempt = randVal < jackpotThreshold;
+      const isMiniWinAttempt = randVal >= jackpotThreshold && randVal < miniWinThreshold;
 
       const syms = activeGame ? activeGame.symbols : ['⚡','👑','💎','🔱'];
       let res1, res2, res3;

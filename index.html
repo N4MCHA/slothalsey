@@ -60,7 +60,7 @@
       100% { transform: translateY(0); }
     }
 
-    /* Floating Notification Bar Animation (Centered Perfectly) */
+    /* Floating Notification Bar Animation */
     #floating-notif-bar {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       transform: translateY(-120px);
@@ -83,9 +83,9 @@
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 pb-10 relative overflow-x-hidden">
+<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 pb-24 relative overflow-x-hidden">
 
-  <!-- FLOATING NOTIFICATION BAR (FIXED CENTERED ON MOBILE) -->
+  <!-- FLOATING NOTIFICATION BAR -->
   <div id="floating-notif-bar" class="fixed top-4 left-4 right-4 max-w-sm mx-auto z-50 bg-slate-900/95 border-2 border-amber-500/50 backdrop-blur-md rounded-2xl p-3.5 shadow-2xl flex items-center gap-3">
     <div id="notif-icon-box" class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-base flex-shrink-0">
       <i class="fa-solid fa-bell"></i>
@@ -99,7 +99,7 @@
     </button>
   </div>
 
-  <!-- NAVBAR -->
+  <!-- TOP NAVBAR -->
   <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-3 sm:px-4 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex justify-between items-center gap-2">
       <!-- Tombol Home Logo -->
@@ -115,7 +115,7 @@
         </div>
       </div>
 
-      <!-- User Status & Tombol Profil Header (Fully Responsive & Non-buggy) -->
+      <!-- User Status & Tombol Profil Header -->
       <div id="nav-user-info" class="flex items-center gap-2 min-w-0">
         <!-- Dynamic User Status -->
       </div>
@@ -150,17 +150,13 @@
           <h3 class="font-black text-amber-400 text-base flex items-center gap-2">
             <i class="fa-solid fa-trophy text-amber-500"></i> Papan Peringkat (Leaderboard)
           </h3>
-          <!-- Tab Selector Leaderboard -->
           <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs w-full sm:w-auto">
             <button onclick="switchLeaderboardTab('level')" id="btn-lb-level" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition">🏆 Level</button>
             <button onclick="switchLeaderboardTab('balance')" id="btn-lb-balance" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">💰 Saldo</button>
           </div>
         </div>
 
-        <!-- Leaderboard List Container -->
-        <div id="leaderboard-content" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-          <!-- Populated by JS -->
-        </div>
+        <div id="leaderboard-content" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
       </div>
 
       <!-- Live RTP Indicator Banner -->
@@ -375,6 +371,22 @@
 
   </main>
 
+  <!-- BOTTOM NAVIGATION BAR (NAVBAR BAWAH UNTUK HP) -->
+  <div class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 border-t border-slate-800 backdrop-blur-md px-4 py-2.5 flex justify-around items-center shadow-2xl">
+    <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center gap-1 text-amber-400 transition">
+      <i class="fa-solid fa-house text-lg"></i>
+      <span class="text-[10px] font-bold">Home</span>
+    </button>
+    <button onclick="switchTabToFirstGame()" id="nav-btn-game" class="flex flex-col items-center gap-1 text-slate-400 hover:text-amber-400 transition">
+      <i class="fa-solid fa-dice text-lg"></i>
+      <span class="text-[10px] font-bold">Games</span>
+    </button>
+    <button onclick="switchTab('profile')" id="nav-btn-profile" class="flex flex-col items-center gap-1 text-slate-400 hover:text-amber-400 transition">
+      <i class="fa-solid fa-user text-lg"></i>
+      <span class="text-[10px] font-bold">Profile</span>
+    </button>
+  </div>
+
   <!-- MODAL AUTH -->
   <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md space-y-5 shadow-2xl relative">
@@ -415,7 +427,7 @@
     let currentLeaderboardTab = 'level';
     let notifTimeout = null;
 
-    // FLOATING NOTIFICATION BAR SYSTEM
+    // FLOATING NOTIFICATION BAR SYSTEM (CENTERED)
     function showNotification(title, message, type = 'info') {
       const bar = document.getElementById('floating-notif-bar');
       const titleEl = document.getElementById('notif-title');
@@ -518,6 +530,7 @@
       renderPaytable();
       updateRtpDisplays();
       renderLeaderboard();
+      updateBottomNavActive('home');
     });
 
     function switchTab(tab) {
@@ -540,6 +553,28 @@
         document.getElementById('tab-profile').classList.remove('hidden');
         renderProfileTab();
       }
+      updateBottomNavActive(tab);
+    }
+
+    function switchTabToFirstGame() {
+      if (!currentUser) return openAuthModal();
+      if (!activeGame) activeGame = GAMES_DATA[0];
+      document.getElementById('current-game-title').innerText = activeGame.title;
+      switchTab('game');
+    }
+
+    function updateBottomNavActive(activeTab) {
+      const btnHome = document.getElementById('nav-btn-home');
+      const btnGame = document.getElementById('nav-btn-game');
+      const btnProfile = document.getElementById('nav-btn-profile');
+
+      [btnHome, btnGame, btnProfile].forEach(b => {
+        b.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-amber-400 transition";
+      });
+
+      if (activeTab === 'home') btnHome.className = "flex flex-col items-center gap-1 text-amber-400 transition";
+      if (activeTab === 'game') btnGame.className = "flex flex-col items-center gap-1 text-amber-400 transition";
+      if (activeTab === 'profile') btnProfile.className = "flex flex-col items-center gap-1 text-amber-400 transition";
     }
 
     function switchLeaderboardTab(type) {

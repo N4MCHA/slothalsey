@@ -425,8 +425,9 @@
     let currentLeaderboardTab = 'level';
     let notifTimeout = null;
 
-    // MASTER DATABASE INITIALIZER (Sinkronisasi Universal & RTP Global)
+    // MASTER DATABASE & CLOUD-SIMULATION SYNC
     function initDatabase() {
+      // Sinkronisasi Real-Time RTP dari Shared Storage / LocalStorage Global
       const storedRtp = localStorage.getItem('arcade_winrate');
       if (storedRtp !== null) {
         globalWinRate = parseInt(storedRtp);
@@ -435,6 +436,7 @@
         globalWinRate = 80;
       }
 
+      // Pastikan Database Member selalu terinisialisasi
       let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
       if (Object.keys(db).length === 0) {
         db = {
@@ -443,6 +445,38 @@
         localStorage.setItem('arcade_users', JSON.stringify(db));
       }
     }
+
+    // AUTO-SYNC INTERVAL (Mengecek perubahan RTP & Leaderboard secara Live tiap 1.5 detik)
+    setInterval(() => {
+      // Sinkronisasi Live RTP
+      const liveRtp = localStorage.getItem('arcade_winrate');
+      if (liveRtp !== null) {
+        const parsedRtp = parseInt(liveRtp);
+        if (parsedRtp !== globalWinRate) {
+          globalWinRate = parsedRtp;
+          updateRtpDisplays();
+        }
+      }
+
+      // Sinkronisasi Sesi Pengguna Aktif & Leaderboard
+      if (currentUser) {
+        let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+        if (db[currentUser.username]) {
+          currentUser.balance = db[currentUser.username].balance;
+          currentUser.level = db[currentUser.username].level;
+          currentUser.exp = db[currentUser.username].exp;
+          updateNavUser();
+        }
+      }
+
+      // Refresh Leaderboard & Tabel Owner secara Real-Time
+      if (document.getElementById('tab-home') && !document.getElementById('tab-home').classList.contains('hidden')) {
+        renderLeaderboard();
+      }
+      if (currentUser && currentUser.role === 'Owner' && document.getElementById('owner-dashboard') && !document.getElementById('owner-dashboard').classList.contains('hidden')) {
+        renderOwnerMemberTable();
+      }
+    }, 1500);
 
     function showNotification(title, message, type = 'info') {
       const bar = document.getElementById('floating-notif-bar');
@@ -957,7 +991,7 @@
       `).join('');
     }
 
-    // STRICT & REALISTIC SLOT ENGINE (Menyesuaikan persentase RTP Master secara ketat)
+    // STRICT & REALISTIC SLOT ENGINE
     function executeSpin() {
       if (!currentUser) return openAuthModal();
 
@@ -993,7 +1027,6 @@
       btnSpin.disabled = true;
       document.getElementById('slot-status').innerText = 'Memutar...';
 
-      // LOGIKA KETAT RTP: Jika RTP disetel 10%, peluang jackpot (3x match) hanya 3% dan mini win 4%
       const jackpotThreshold = globalWinRate * 0.35; 
       const miniWinThreshold = globalWinRate;
 

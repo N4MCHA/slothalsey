@@ -221,7 +221,7 @@
             </div>
           </div>
 
-          <!-- PENGATURAN MODE SPIN (AUTO 2X, AUTO INFINITE, TURBO) -->
+          <!-- PENGATURAN MODE SPIN -->
           <div class="grid grid-cols-3 gap-2 pt-1">
             <button id="btn-autospin-2x" onclick="toggleAutoSpin(2)" class="py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
               <i class="fa-solid fa-rotate"></i> Auto 2X
@@ -311,7 +311,7 @@
             <h3 class="text-xl font-black text-purple-400 flex items-center gap-2">
               <i class="fa-solid fa-user-gear"></i> Owner Control Panel
             </h3>
-            <p class="text-xs text-slate-400">Atur Win Rate RTP Global (Default 50%) dan cari member untuk kelola saldo.</p>
+            <p class="text-xs text-slate-400">Atur Win Rate RTP Global dan cari member untuk kelola saldo.</p>
           </div>
           <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 rounded-full text-xs font-bold">
             Live Control Active
@@ -421,14 +421,14 @@
     let activeGame = null;
     let notifTimeout = null;
 
-    // MASTER DATABASE & DEFAULT RTP 50% INITIALIZER
+    // MASTER DATABASE & PERSISTENT SESSION INITIALIZER
     function initDatabase() {
       const storedRtp = localStorage.getItem('arcade_winrate');
       if (storedRtp !== null) {
         globalWinRate = parseInt(storedRtp);
       } else {
-        localStorage.setItem('arcade_winrate', '50');
-        globalWinRate = 50;
+        localStorage.setItem('arcade_winrate', '30');
+        globalWinRate = 30;
       }
 
       let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
@@ -440,7 +440,7 @@
       }
     }
 
-    // AUTO-SYNC INTERVAL
+    // AUTO-SYNC INTERVAL (Menjaga data tetap sinkron secara aman)
     setInterval(() => {
       const liveRtp = localStorage.getItem('arcade_winrate');
       if (liveRtp !== null) {
@@ -454,6 +454,7 @@
       if (currentUser) {
         let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
         if (db[currentUser.username]) {
+          // Sinkronisasi saldo & level tanpa menimpa sesi login aktif
           currentUser.balance = db[currentUser.username].balance;
           currentUser.level = db[currentUser.username].level;
           currentUser.exp = db[currentUser.username].exp;
@@ -658,8 +659,8 @@
       if (db[userVal] && db[userVal].password === passVal) {
         currentUser = db[userVal];
         
-        localStorage.setItem('arcade_winrate', '50');
-        globalWinRate = 50;
+        localStorage.setItem('arcade_winrate', '30');
+        globalWinRate = 30;
 
         saveSession();
         closeAuthModal();
@@ -691,8 +692,8 @@
         role: isOwner ? 'Owner' : 'Member'
       };
 
-      localStorage.setItem('arcade_winrate', '50');
-      globalWinRate = 50;
+      localStorage.setItem('arcade_winrate', '30');
+      globalWinRate = 30;
 
       db[userVal] = currentUser;
       localStorage.setItem('arcade_users', JSON.stringify(db));
@@ -713,29 +714,22 @@
     }
 
     function saveSession() {
-      localStorage.setItem('arcade_session', JSON.stringify(currentUser));
+      if (!currentUser) return;
+      localStorage.setItem('arcade_session', currentUser.username);
       let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
-      if (currentUser) {
-        db[currentUser.username] = currentUser;
-        localStorage.setItem('arcade_users', JSON.stringify(db));
-      }
+      db[currentUser.username] = currentUser;
+      localStorage.setItem('arcade_users', JSON.stringify(db));
     }
 
     function loadSavedSession() {
-      const sess = localStorage.getItem('arcade_session');
-      if (sess) {
-        currentUser = JSON.parse(sess);
+      const savedUsername = localStorage.getItem('arcade_session');
+      if (savedUsername) {
         let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
-        if (currentUser && db[currentUser.username]) {
-          currentUser = db[currentUser.username];
-        } else if (currentUser && !db[currentUser.username]) {
-          db[currentUser.username] = currentUser;
-          localStorage.setItem('arcade_users', JSON.stringify(db));
+        if (db[savedUsername]) {
+          currentUser = db[savedUsername];
         }
-        updateNavUser();
-      } else {
-        updateNavUser();
       }
+      updateNavUser();
     }
 
     function updateNavUser() {
@@ -818,7 +812,14 @@
 
     // PENCARIAN USERNAME DI PANEL OWNER
     function renderOwnerMemberTable() {
-      const db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      
+      // Jika akun yang login adalah Owner, pastikan akun Owner sendiri selalu terdaftar di database
+      if (currentUser && currentUser.role === 'Owner' && !db[currentUser.username]) {
+        db[currentUser.username] = currentUser;
+        localStorage.setItem('arcade_users', JSON.stringify(db));
+      }
+
       const searchKeyword = (document.getElementById('search-member-input') ? document.getElementById('search-member-input').value : '').toLowerCase();
       const tbody = document.getElementById('owner-member-table-body');
       tbody.innerHTML = '';
@@ -869,7 +870,7 @@
       if (!currentUser) return;
       
       if (currentUser.role !== 'Owner') {
-        showNotification('Gagal Refill!', 'Minta owner😝', 'jackpot');
+        showNotification('Gagal Refill!', 'Minta owner atau beli dong 😝', 'jackpot');
         return;
       }
 
@@ -917,7 +918,6 @@
       `).join('');
     }
 
-    // FITUR TURBO SPIN TOGGLE
     function toggleTurbo() {
       isTurbo = !isTurbo;
       const stateEl = document.getElementById('turbo-state');
@@ -930,7 +930,6 @@
       }
     }
 
-    // SLOT ENGINE (DENGAN DUKUNGAN AUTO SPIN 2X & BERKELANJUTAN SERTA TURBO)
     function executeSpin() {
       if (!currentUser) return openAuthModal();
 
@@ -1030,7 +1029,6 @@
           finishSpinResult(res1, res2, res3, currentBet);
           btnSpin.disabled = false;
 
-          // Handle Auto Spin Counter Decrement
           if (isAutoSpin) {
             if (typeof autoSpinCount === 'number' && autoSpinCount > 0) {
               autoSpinCount--;

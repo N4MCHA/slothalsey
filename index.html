@@ -46,6 +46,10 @@
       animation: slotSpin 0.12s linear infinite;
       filter: blur(2px);
     }
+    .spinning-reel-turbo {
+      animation: slotSpin 0.05s linear infinite;
+      filter: blur(3px);
+    }
     .reel-stop-bounce {
       animation: stopBounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
@@ -142,21 +146,6 @@
         </div>
       </div>
 
-      <!-- LEADERBOARD BAR / SECTION -->
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <h3 class="font-black text-amber-400 text-base flex items-center gap-2">
-            <i class="fa-solid fa-trophy text-amber-500"></i> Papan Peringkat (Leaderboard)
-          </h3>
-          <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs w-full sm:w-auto">
-            <button onclick="switchLeaderboardTab('level')" id="btn-lb-level" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition">🏆 Level</button>
-            <button onclick="switchLeaderboardTab('balance')" id="btn-lb-balance" class="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition">💰 Saldo</button>
-          </div>
-        </div>
-
-        <div id="leaderboard-content" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-      </div>
-
       <!-- Live RTP Indicator Banner -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-3">
@@ -165,7 +154,7 @@
           </div>
           <div>
             <h4 class="font-bold text-sm text-slate-200">Global System Live RTP Rate</h4>
-            <p class="text-xs text-emerald-400 font-semibold"><span id="home-live-rtp-val">25%</span> LIVE <span class="text-slate-500">• Terhubung Kontrol Owner</span></p>
+            <p class="text-xs text-emerald-400 font-semibold"><span id="home-live-rtp-val">50%</span> LIVE <span class="text-slate-500">• Terhubung Kontrol Owner</span></p>
           </div>
         </div>
         <div class="relative w-full sm:w-64">
@@ -186,7 +175,7 @@
         </button>
         <div class="text-right">
           <h3 id="current-game-title" class="text-base font-black text-amber-400">Olympus Zeus</h3>
-          <p class="text-xs text-slate-400">RTP Live: <span id="game-rtp-display" class="text-emerald-400 font-bold">25%</span></p>
+          <p class="text-xs text-slate-400">RTP Live: <span id="game-rtp-display" class="text-emerald-400 font-bold">50%</span></p>
         </div>
       </div>
 
@@ -211,7 +200,7 @@
         </div>
 
         <div id="slot-status" class="mt-4 text-center py-2 px-4 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 min-h-[40px] flex items-center justify-center">
-          Tekan SPIN atau nyalakan Auto Spin untuk bertaruh!
+          Tekan SPIN atau pilih Mode Spin untuk bertaruh!
         </div>
 
         <div class="mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-4">
@@ -227,26 +216,26 @@
                 <input type="number" id="bet-input" value="1000" placeholder="0" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-3 py-2 text-amber-400 font-black text-sm focus:outline-none focus:border-amber-500" />
               </div>
 
-              <button onclick="setPresetBet('min')" class="px-2.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold rounded-xl">MIN</button>
-              <button onclick="setPresetBet('half')" class="px-2.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold rounded-xl">1/2</button>
-              <button onclick="setPresetBet('double')" class="px-2.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold rounded-xl">2X</button>
-              <button onclick="setPresetBet('max')" class="px-2.5 py-2 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 text-xs font-bold rounded-xl">MAX</button>
-            </div>
-
-            <div class="flex gap-2">
-              <button onclick="addBetDelta(500)" class="flex-1 py-1 bg-slate-900/60 hover:bg-slate-900 text-slate-400 border border-slate-800 text-[11px] font-semibold rounded-lg">+500</button>
-              <button onclick="addBetDelta(1000)" class="flex-1 py-1 bg-slate-900/60 hover:bg-slate-900 text-slate-400 border border-slate-800 text-[11px] font-semibold rounded-lg">+1,000</button>
-              <button onclick="addBetDelta(5000)" class="flex-1 py-1 bg-slate-900/60 hover:bg-slate-900 text-slate-400 border border-slate-800 text-[11px] font-semibold rounded-lg">+5,000</button>
-              <button onclick="addBetDelta(10000)" class="flex-1 py-1 bg-slate-900/60 hover:bg-slate-900 text-slate-400 border border-slate-800 text-[11px] font-semibold rounded-lg">+10,000</button>
+              <button onclick="setPresetBet('min')" class="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold rounded-xl">MIN</button>
+              <button onclick="setPresetBet('max')" class="px-3 py-2 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 text-xs font-bold rounded-xl">MAX</button>
             </div>
           </div>
 
-          <div class="flex items-center gap-3 pt-2">
-            <button id="btn-autospin" onclick="toggleAutoSpin()" class="px-4 py-3.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-2xl text-xs font-bold flex items-center gap-2 transition">
-              <i class="fa-solid fa-rotate"></i> AUTO: <span id="autospin-state" class="text-red-400 font-black">OFF</span>
+          <!-- PENGATURAN MODE SPIN (AUTO 2X, AUTO INFINITE, TURBO) -->
+          <div class="grid grid-cols-3 gap-2 pt-1">
+            <button id="btn-autospin-2x" onclick="toggleAutoSpin(2)" class="py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-rotate"></i> Auto 2X
             </button>
+            <button id="btn-autospin-inf" onclick="toggleAutoSpin('inf')" class="py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-infinity"></i> Auto On
+            </button>
+            <button id="btn-turbo" onclick="toggleTurbo()" class="py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-bolt text-amber-400"></i> Turbo: <span id="turbo-state" class="text-red-400 font-black">OFF</span>
+            </button>
+          </div>
 
-            <button id="btn-spin" onclick="executeSpin()" class="flex-grow py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-base rounded-2xl shadow-lg shadow-amber-500/20 active:scale-[0.98] transition uppercase tracking-wider flex items-center justify-center gap-2">
+          <div class="pt-1">
+            <button id="btn-spin" onclick="executeSpin()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-base rounded-2xl shadow-lg shadow-amber-500/20 active:scale-[0.98] transition uppercase tracking-wider flex items-center justify-center gap-2">
               <i class="fa-solid fa-play"></i> PUTAR SEKARANG
             </button>
           </div>
@@ -322,7 +311,7 @@
             <h3 class="text-xl font-black text-purple-400 flex items-center gap-2">
               <i class="fa-solid fa-user-gear"></i> Owner Control Panel
             </h3>
-            <p class="text-xs text-slate-400">Atur Win Rate RTP Global dan kelola saldo member secara real-time.</p>
+            <p class="text-xs text-slate-400">Atur Win Rate RTP Global (Default 50%) dan cari member untuk kelola saldo.</p>
           </div>
           <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 rounded-full text-xs font-bold">
             Live Control Active
@@ -334,22 +323,28 @@
             <h4 class="font-bold text-amber-400 text-sm flex items-center gap-2">
               <i class="fa-solid fa-sliders"></i> Pengaturan Persentase Kemenangan (RTP Global)
             </h4>
-            <span id="winrate-slider-val" class="text-lg font-black text-emerald-400">25%</span>
+            <span id="winrate-slider-val" class="text-lg font-black text-emerald-400">50%</span>
           </div>
           <p class="text-xs text-slate-400">
             Geser slider halus di bawah ini untuk merubah persentase gacor/rungkad member.
           </p>
           <div class="flex items-center gap-4">
             <span class="text-xs font-bold text-red-400">10% (Sulit)</span>
-            <input type="range" id="winrate-range" min="10" max="95" value="25" step="1" oninput="updateWinRateSetting(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+            <input type="range" id="winrate-range" min="10" max="95" value="50" step="1" oninput="updateWinRateSetting(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
             <span class="text-xs font-bold text-emerald-400">95% (Gacor)</span>
           </div>
         </div>
 
+        <!-- FITUR PENCARIAN USERNAME & KELOLA SALDO MEMBER -->
         <div class="space-y-3">
-          <h4 class="font-bold text-slate-200 text-sm flex items-center gap-2">
-            <i class="fa-solid fa-users"></i> Daftar Member & Edit Saldo
-          </h4>
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <h4 class="font-bold text-slate-200 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-magnifying-glass"></i> Cari & Kelola Saldo Member
+            </h4>
+            <div class="relative w-full sm:w-64">
+              <input type="text" id="search-member-input" oninput="renderOwnerMemberTable()" placeholder="Ketik username (misal: ri)..." class="w-full bg-slate-950 border border-slate-800 text-xs rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500" />
+            </div>
+          </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs text-slate-300">
               <thead class="bg-slate-950 text-slate-400 uppercase font-bold border-b border-slate-800">
@@ -418,21 +413,22 @@
   <!-- JAVASCRIPT ENGINE -->
   <script>
     let currentUser = null;
-    let globalWinRate = 25; // Default RTP awal diset 25%
+    let globalWinRate = 50;
     let isAutoSpin = false;
+    let autoSpinCount = 0;
     let autoSpinInterval = null;
+    let isTurbo = false;
     let activeGame = null;
-    let currentLeaderboardTab = 'level';
     let notifTimeout = null;
 
-    // MASTER DATABASE & DEFAULT RTP 25%
+    // MASTER DATABASE & DEFAULT RTP 50% INITIALIZER
     function initDatabase() {
       const storedRtp = localStorage.getItem('arcade_winrate');
       if (storedRtp !== null) {
         globalWinRate = parseInt(storedRtp);
       } else {
-        localStorage.setItem('arcade_winrate', '25');
-        globalWinRate = 25;
+        localStorage.setItem('arcade_winrate', '50');
+        globalWinRate = 50;
       }
 
       let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
@@ -444,7 +440,7 @@
       }
     }
 
-    // AUTO-SYNC INTERVAL (Sinkronisasi Live RTP & Leaderboard lintas perangkat)
+    // AUTO-SYNC INTERVAL
     setInterval(() => {
       const liveRtp = localStorage.getItem('arcade_winrate');
       if (liveRtp !== null) {
@@ -465,9 +461,6 @@
         }
       }
 
-      if (document.getElementById('tab-home') && !document.getElementById('tab-home').classList.contains('hidden')) {
-        renderLeaderboard();
-      }
       if (currentUser && currentUser.role === 'Owner' && document.getElementById('owner-dashboard') && !document.getElementById('owner-dashboard').classList.contains('hidden')) {
         renderOwnerMemberTable();
       }
@@ -518,11 +511,11 @@
       if (type === 'spin') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.15);
+        osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + (isTurbo ? 0.05 : 0.15));
         gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + (isTurbo ? 0.06 : 0.18));
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.18);
+        osc.stop(audioCtx.currentTime + (isTurbo ? 0.06 : 0.18));
       } else if (type === 'win') {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
@@ -575,7 +568,6 @@
       loadSavedSession();
       renderPaytable();
       updateRtpDisplays();
-      renderLeaderboard();
       updateBottomNavActive('home');
     });
 
@@ -588,7 +580,6 @@
 
       if (tab === 'home') {
         document.getElementById('tab-home').classList.remove('hidden');
-        renderLeaderboard();
       }
       if (tab === 'game') {
         if (!currentUser) return openAuthModal();
@@ -621,72 +612,6 @@
       if (activeTab === 'home') btnHome.className = "flex flex-col items-center gap-1 text-amber-400 transition";
       if (activeTab === 'game') btnGame.className = "flex flex-col items-center gap-1 text-amber-400 transition";
       if (activeTab === 'profile') btnProfile.className = "flex flex-col items-center gap-1 text-amber-400 transition";
-    }
-
-    function switchLeaderboardTab(type) {
-      currentLeaderboardTab = type;
-      const btnLevel = document.getElementById('btn-lb-level');
-      const btnBalance = document.getElementById('btn-lb-balance');
-
-      if (type === 'level') {
-        btnLevel.className = "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition";
-        btnBalance.className = "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
-      } else {
-        btnBalance.className = "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition";
-        btnLevel.className = "flex-1 sm:flex-initial px-4 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition";
-      }
-      renderLeaderboard();
-    }
-
-    function renderLeaderboard() {
-      initDatabase();
-      let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
-      
-      if (currentUser && !db[currentUser.username]) {
-        db[currentUser.username] = currentUser;
-        localStorage.setItem('arcade_users', JSON.stringify(db));
-      }
-
-      let usersArr = Object.values(db);
-
-      if (currentLeaderboardTab === 'level') {
-        usersArr.sort((a, b) => b.level - a.level || b.exp - a.exp);
-      } else {
-        usersArr.sort((a, b) => b.balance - a.balance);
-      }
-
-      const container = document.getElementById('leaderboard-content');
-      if (usersArr.length === 0) {
-        container.innerHTML = `<p class="text-slate-500 italic text-center py-4 text-xs">Belum ada data member di leaderboard.</p>`;
-        return;
-      }
-
-      container.innerHTML = usersArr.slice(0, 5).map((u, index) => {
-        let badgeColor = "text-slate-400";
-        let rankIcon = `#${index + 1}`;
-        if (index === 0) { rankIcon = '👑 1'; badgeColor = 'text-amber-400 font-black'; }
-        else if (index === 1) { rankIcon = '🥈 2'; badgeColor = 'text-slate-200 font-bold'; }
-        else if (index === 2) { rankIcon = '🥉 3'; badgeColor = 'text-amber-600 font-bold'; }
-
-        return `
-          <div class="flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800 text-xs">
-            <div class="flex items-center gap-3">
-              <span class="w-8 text-center text-sm font-black ${badgeColor}">${rankIcon}</span>
-              <div class="w-8 h-8 rounded-xl bg-purple-900/50 border border-purple-500/30 flex items-center justify-center font-bold text-white text-xs">
-                ${u.username[0].toUpperCase()}
-              </div>
-              <div>
-                <p class="font-bold text-slate-200">${u.username} ${u.role === 'Owner' ? '👑' : ''}</p>
-                <p class="text-[10px] text-slate-400">Level ${u.level}</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="font-black text-amber-400">Rp ${u.balance.toLocaleString()}</p>
-              <p class="text-[10px] text-emerald-400 font-semibold">${u.exp} EXP</p>
-            </div>
-          </div>
-        `;
-      }).join('');
     }
 
     function renderGameGrid(games) {
@@ -732,11 +657,15 @@
       let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
       if (db[userVal] && db[userVal].password === passVal) {
         currentUser = db[userVal];
+        
+        localStorage.setItem('arcade_winrate', '50');
+        globalWinRate = 50;
+
         saveSession();
         closeAuthModal();
         updateNavUser();
-        renderLeaderboard();
-        showNotification('Login Berhasil!', `Selamat datang kembali, ${currentUser.username}!`, 'success');
+        updateRtpDisplays();
+        showNotification('Login Berhasil!', `Selamat datang kembali, ${currentUser.username}! (RTP Default: 50%)`, 'success');
       } else {
         alert('Username atau password salah!');
       }
@@ -762,13 +691,16 @@
         role: isOwner ? 'Owner' : 'Member'
       };
 
+      localStorage.setItem('arcade_winrate', '50');
+      globalWinRate = 50;
+
       db[userVal] = currentUser;
       localStorage.setItem('arcade_users', JSON.stringify(db));
       saveSession();
       closeAuthModal();
       updateNavUser();
-      renderLeaderboard();
-      showNotification('Pendaftaran Berhasil!', 'Bonus Saldo Virtual Rp 50.000 ditambahkan!', 'success');
+      updateRtpDisplays();
+      showNotification('Pendaftaran Berhasil!', 'Bonus Saldo Virtual Rp 50.000 (RTP Default: 50%)!', 'success');
     }
 
     function handleLogout() {
@@ -777,7 +709,6 @@
       localStorage.removeItem('arcade_session');
       updateNavUser();
       switchTab('home');
-      renderLeaderboard();
       showNotification('Logout', 'Berhasil keluar dari akun.', 'info');
     }
 
@@ -885,12 +816,21 @@
       }
     }
 
+    // PENCARIAN USERNAME DI PANEL OWNER
     function renderOwnerMemberTable() {
       const db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
+      const searchKeyword = (document.getElementById('search-member-input') ? document.getElementById('search-member-input').value : '').toLowerCase();
       const tbody = document.getElementById('owner-member-table-body');
       tbody.innerHTML = '';
 
-      Object.values(db).forEach(u => {
+      const filteredUsers = Object.values(db).filter(u => u.username.toLowerCase().includes(searchKeyword));
+
+      if (filteredUsers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">Username tidak ditemukan...</td></tr>`;
+        return;
+      }
+
+      filteredUsers.forEach(u => {
         tbody.innerHTML += `
           <tr>
             <td class="p-3 font-semibold text-slate-200">${u.username} ${u.role === 'Owner' ? '👑' : ''}</td>
@@ -921,7 +861,6 @@
         }
         renderOwnerMemberTable();
         updateNavUser();
-        renderLeaderboard();
         showNotification('Owner Action', `Berhasil update saldo ${targetUser}!`, 'success');
       }
     }
@@ -930,7 +869,7 @@
       if (!currentUser) return;
       
       if (currentUser.role !== 'Owner') {
-        showNotification('Gagal Refill!', 'Minta owner atau beli dong 😝', 'jackpot');
+        showNotification('Gagal Refill!', 'Minta owner😝', 'jackpot');
         return;
       }
 
@@ -938,7 +877,6 @@
       saveSession();
       renderProfileTab();
       updateNavUser();
-      renderLeaderboard();
       showNotification('Refill Berhasil', 'Saldo virtual Owner bertambah +Rp 25.000!', 'success');
     }
 
@@ -960,15 +898,8 @@
       if (!currentUser) return openAuthModal();
       let val = 1000;
       if (type === 'min') val = 200;
-      if (type === 'half') val = Math.max(200, Math.floor(currentUser.balance / 2));
-      if (type === 'double') val = Math.min(currentUser.balance, getBetValue() * 2);
       if (type === 'max') val = Math.max(200, currentUser.balance);
       document.getElementById('bet-input').value = val;
-    }
-
-    function addBetDelta(delta) {
-      let current = getBetValue();
-      document.getElementById('bet-input').value = current + delta;
     }
 
     function renderPaytable() {
@@ -986,7 +917,20 @@
       `).join('');
     }
 
-    // STRICT & REALISTIC SLOT ENGINE
+    // FITUR TURBO SPIN TOGGLE
+    function toggleTurbo() {
+      isTurbo = !isTurbo;
+      const stateEl = document.getElementById('turbo-state');
+      if (isTurbo) {
+        stateEl.innerText = 'ON';
+        stateEl.className = 'text-emerald-400 font-black';
+      } else {
+        stateEl.innerText = 'OFF';
+        stateEl.className = 'text-red-400 font-black';
+      }
+    }
+
+    // SLOT ENGINE (DENGAN DUKUNGAN AUTO SPIN 2X & BERKELANJUTAN SERTA TURBO)
     function executeSpin() {
       if (!currentUser) return openAuthModal();
 
@@ -1054,24 +998,28 @@
       const r2 = document.getElementById('reel-2');
       const r3 = document.getElementById('reel-3');
 
-      r1.classList.add('spinning-reel');
-      r2.classList.add('spinning-reel');
-      r3.classList.add('spinning-reel');
+      const reelClass = isTurbo ? 'spinning-reel-turbo' : 'spinning-reel';
+      const animSpeed = isTurbo ? 200 : 500;
+      const stopSpeed = isTurbo ? 100 : 350;
+
+      r1.classList.add(reelClass);
+      r2.classList.add(reelClass);
+      r3.classList.add(reelClass);
 
       setTimeout(() => {
-        r1.classList.remove('spinning-reel');
+        r1.classList.remove(reelClass);
         r1.classList.add('reel-stop-bounce');
         r1.innerHTML = `<div>${res1}</div><div>${res1}</div><div>${res1}</div>`;
-      }, 500);
+      }, animSpeed);
 
       setTimeout(() => {
-        r2.classList.remove('spinning-reel');
+        r2.classList.remove(reelClass);
         r2.classList.add('reel-stop-bounce');
         r2.innerHTML = `<div>${res2}</div><div>${res2}</div><div>${res2}</div>`;
-      }, 900);
+      }, animSpeed + (isTurbo ? 100 : 400));
 
       setTimeout(() => {
-        r3.classList.remove('spinning-reel');
+        r3.classList.remove(reelClass);
         r3.classList.add('reel-stop-bounce');
         r3.innerHTML = `<div>${res3}</div><div>${res3}</div><div>${res3}</div>`;
 
@@ -1081,8 +1029,18 @@
           r3.classList.remove('reel-stop-bounce');
           finishSpinResult(res1, res2, res3, currentBet);
           btnSpin.disabled = false;
-        }, 350);
-      }, 1300);
+
+          // Handle Auto Spin Counter Decrement
+          if (isAutoSpin) {
+            if (typeof autoSpinCount === 'number' && autoSpinCount > 0) {
+              autoSpinCount--;
+              if (autoSpinCount <= 0) {
+                stopAutoSpin();
+              }
+            }
+          }
+        }, stopSpeed);
+      }, animSpeed + (isTurbo ? 200 : 800));
     }
 
     function finishSpinResult(s1, s2, s3, bet) {
@@ -1121,7 +1079,6 @@
 
       saveSession();
       updateNavUser();
-      renderLeaderboard();
       document.getElementById('slot-status').innerText = statusText;
 
       const hist = document.getElementById('spin-history');
@@ -1139,36 +1096,37 @@
       hist.prepend(item);
     }
 
-    function toggleAutoSpin() {
-      if (isAutoSpin) stopAutoSpin();
-      else startAutoSpin();
-    }
-
-    function startAutoSpin() {
+    function toggleAutoSpin(mode) {
       if (!currentUser) return openAuthModal();
-      isAutoSpin = true;
-      const stateEl = document.getElementById('autospin-state');
-      if (stateEl) {
-        stateEl.innerText = 'ON';
-        stateEl.className = 'text-emerald-400 font-black';
+      
+      if (isAutoSpin) {
+        stopAutoSpin();
+        return;
       }
 
+      isAutoSpin = true;
+      if (mode === 2) {
+        autoSpinCount = 2;
+        showNotification('Auto Spin', 'Auto Spin 2X diaktifkan.', 'info');
+      } else {
+        autoSpinCount = 'inf';
+        showNotification('Auto Spin', 'Auto Spin Berkelanjutan diaktifkan.', 'info');
+      }
+
+      const spinIntervalTime = isTurbo ? 600 : 1600;
       autoSpinInterval = setInterval(() => {
         if (!document.getElementById('btn-spin').disabled) executeSpin();
-      }, 1800);
+      }, spinIntervalTime);
     }
 
     function stopAutoSpin() {
       isAutoSpin = false;
-      const stateEl = document.getElementById('autospin-state');
-      if (stateEl) {
-        stateEl.innerText = 'OFF';
-        stateEl.className = 'text-red-400 font-black';
-      }
+      autoSpinCount = 0;
       if (autoSpinInterval) {
         clearInterval(autoSpinInterval);
         autoSpinInterval = null;
       }
+      showNotification('Auto Spin', 'Auto Spin dihentikan.', 'info');
     }
   </script>
 </body>

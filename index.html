@@ -154,7 +154,7 @@
           </div>
           <div>
             <h4 class="font-bold text-sm text-slate-200">Global System Live RTP Rate</h4>
-            <p class="text-xs text-emerald-400 font-semibold"><span id="home-live-rtp-val">50%</span> LIVE <span class="text-slate-500">• Terhubung Kontrol Owner</span></p>
+            <p class="text-xs text-emerald-400 font-semibold"><span id="home-live-rtp-val">30%</span> LIVE <span class="text-slate-500">• Terhubung Kontrol Owner</span></p>
           </div>
         </div>
         <div class="relative w-full sm:w-64">
@@ -175,7 +175,7 @@
         </button>
         <div class="text-right">
           <h3 id="current-game-title" class="text-base font-black text-amber-400">Olympus Zeus</h3>
-          <p class="text-xs text-slate-400">RTP Live: <span id="game-rtp-display" class="text-emerald-400 font-bold">50%</span></p>
+          <p class="text-xs text-slate-400">RTP Live: <span id="game-rtp-display" class="text-emerald-400 font-bold">30%</span></p>
         </div>
       </div>
 
@@ -323,14 +323,14 @@
             <h4 class="font-bold text-amber-400 text-sm flex items-center gap-2">
               <i class="fa-solid fa-sliders"></i> Pengaturan Persentase Kemenangan (RTP Global)
             </h4>
-            <span id="winrate-slider-val" class="text-lg font-black text-emerald-400">50%</span>
+            <span id="winrate-slider-val" class="text-lg font-black text-emerald-400">30%</span>
           </div>
           <p class="text-xs text-slate-400">
             Geser slider halus di bawah ini untuk merubah persentase gacor/rungkad member.
           </p>
           <div class="flex items-center gap-4">
             <span class="text-xs font-bold text-red-400">10% (Sulit)</span>
-            <input type="range" id="winrate-range" min="10" max="95" value="50" step="1" oninput="updateWinRateSetting(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+            <input type="range" id="winrate-range" min="10" max="95" value="30" step="1" oninput="updateWinRateSetting(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" />
             <span class="text-xs font-bold text-emerald-400">95% (Gacor)</span>
           </div>
         </div>
@@ -413,7 +413,7 @@
   <!-- JAVASCRIPT ENGINE -->
   <script>
     let currentUser = null;
-    let globalWinRate = 50;
+    let globalWinRate = 30;
     let isAutoSpin = false;
     let autoSpinCount = 0;
     let autoSpinInterval = null;
@@ -421,7 +421,7 @@
     let activeGame = null;
     let notifTimeout = null;
 
-    // MASTER DATABASE & PERSISTENT SESSION INITIALIZER
+    // MASTER DATABASE & DEFAULT RTP 30% INITIALIZER
     function initDatabase() {
       const storedRtp = localStorage.getItem('arcade_winrate');
       if (storedRtp !== null) {
@@ -440,7 +440,7 @@
       }
     }
 
-    // AUTO-SYNC INTERVAL (Menjaga data tetap sinkron secara aman)
+    // AUTO-SYNC INTERVAL
     setInterval(() => {
       const liveRtp = localStorage.getItem('arcade_winrate');
       if (liveRtp !== null) {
@@ -454,7 +454,6 @@
       if (currentUser) {
         let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
         if (db[currentUser.username]) {
-          // Sinkronisasi saldo & level tanpa menimpa sesi login aktif
           currentUser.balance = db[currentUser.username].balance;
           currentUser.level = db[currentUser.username].level;
           currentUser.exp = db[currentUser.username].exp;
@@ -666,7 +665,7 @@
         closeAuthModal();
         updateNavUser();
         updateRtpDisplays();
-        showNotification('Login Berhasil!', `Selamat datang kembali, ${currentUser.username}! (RTP Default: 50%)`, 'success');
+        showNotification('Login Berhasil!', `Selamat datang kembali, ${currentUser.username}! (RTP Default: 30%)`, 'success');
       } else {
         alert('Username atau password salah!');
       }
@@ -701,7 +700,7 @@
       closeAuthModal();
       updateNavUser();
       updateRtpDisplays();
-      showNotification('Pendaftaran Berhasil!', 'Bonus Saldo Virtual Rp 50.000 (RTP Default: 50%)!', 'success');
+      showNotification('Pendaftaran Berhasil!', 'Bonus Saldo Virtual Rp 50.000 (RTP Default: 30%)!', 'success');
     }
 
     function handleLogout() {
@@ -814,7 +813,6 @@
     function renderOwnerMemberTable() {
       let db = JSON.parse(localStorage.getItem('arcade_users') || '{}');
       
-      // Jika akun yang login adalah Owner, pastikan akun Owner sendiri selalu terdaftar di database
       if (currentUser && currentUser.role === 'Owner' && !db[currentUser.username]) {
         db[currentUser.username] = currentUser;
         localStorage.setItem('arcade_users', JSON.stringify(db));
@@ -870,7 +868,7 @@
       if (!currentUser) return;
       
       if (currentUser.role !== 'Owner') {
-        showNotification('Gagal Refill!', 'Minta owner atau beli dong 😝', 'jackpot');
+        showNotification('Gagal Refill!', 'Minta owner 😝', 'jackpot');
         return;
       }
 
